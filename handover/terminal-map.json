@@ -1,0 +1,31 @@
+{
+  "terminals": {
+    "reactor-fw": {
+      "working_dir": "D:\\mybot\\git\\reactor-fw",
+      "jira": "FWP-737",
+      "latest": "latest-reactor-fw.md"
+    },
+    "reactor-50-100-fw": {
+      "working_dir": "D:\\mybot\\git\\reactor-50-100-fw",
+      "jira": "FWP-737",
+      "latest": "latest-reactor-50-100-fw.md",
+      "note": "shares JIRA with reactor-fw (same STM32 project)"
+    },
+    "esp32": {
+      "working_dir": "D:\\mybot\\git\\pg-reactor-esp32-wifi-bt",
+      "jira": "FWP-738",
+      "latest": "latest-esp32.md"
+    },
+    "mybot": {
+      "working_dir": "D:\\mybot",
+      "jira": "FWP-739",
+      "latest": "latest-mybot.md"
+    },
+    "fw-multi-agent": {
+      "working_dir": "D:\\mybot\\fw-multi-agent",
+      "jira": "FWP-739",
+      "latest": "latest-fw-multi-agent.md",
+      "note": "shares JIRA with mybot (coordination work)"
+    }
+  }
+}
