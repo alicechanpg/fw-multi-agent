@@ -2,9 +2,9 @@
 
 Manually trigger session restore. Execute ALL steps:
 
-1. `cd D:\mybot\fw-multi-agent && git pull` (sync latest from GitHub)
-2. Read `D:\mybot\handover\terminal-map.json`
-3. Scan `D:\mybot\handover\latest-*.md` and `D:\mybot\fw-multi-agent\handover\latest-*.md`
+1. `cd D:/mybot/fw-multi-agent && git pull` (sync latest from GitHub)
+2. Read `D:/mybot/handover\terminal-map.json`
+3. Scan `D:/mybot/handover\latest-*.md` and `D:/mybot/fw-multi-agent\handover\latest-*.md`
 4. Present menu:
 ```
 Available sessions:
