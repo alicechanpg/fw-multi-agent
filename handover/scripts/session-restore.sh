@@ -28,7 +28,7 @@ done < <(find "$HANDOVER_DIR" -maxdepth 1 -name "latest-*.md" -type f 2>/dev/nul
 SESSION_COUNT=${#SESSIONS[@]}
 
 if [ "$SESSION_COUNT" -eq 0 ]; then
-    echo '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"[SESSION-RESTORE] No restorable sessions. Start fresh.\nRead JIRA FWP-739 comments for session handoff protocol context."}}'
+    echo '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"[SESSION-RESTORE] No restorable sessions. Start fresh."}}'
     exit 0
 fi
 
@@ -40,6 +40,6 @@ for s in "${SESSIONS[@]}"; do
     CTX+="  $idx. $tid ($tdate) -- $tsummary\n"
     idx=$((idx + 1))
 done
-CTX+="  0. Start new work\nAsk user which to restore. Then read the corresponding latest-{id}.md and JIRA ticket.\nALSO: Read JIRA FWP-739 comments for session handoff protocol context and latest status."
+CTX+="  0. Start new work\nAsk user which to restore. Then read the corresponding latest-{id}.md and JIRA ticket."
 
 echo "{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"$CTX\"}}"
