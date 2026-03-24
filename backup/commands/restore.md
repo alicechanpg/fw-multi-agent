@@ -3,13 +3,29 @@
 Manually trigger session restore. Execute ALL steps:
 
 1. `cd D:/mybot/fw-multi-agent && git pull` (sync latest from GitHub)
-2. Read `D:/mybot/handover\terminal-map.json`
-3. Scan `D:/mybot/handover\latest-*.md` and `D:/mybot/fw-multi-agent\handover\latest-*.md`
-4. Present menu:
+2. Read `D:/mybot/handover/terminal-map.json`
+3. Scan `D:/mybot/handover/latest-*.md` and `D:/mybot/fw-multi-agent/handover/latest-*.md`
+
+4. Based on scan results:
+
+**If 0 sessions found:**
+- Show only J/M/0 options:
+```
+No sessions to restore.
+J. 查看最近更新的 JIRA tickets (近 3 天)
+M. 查看我的所有 open tickets
+0. Start new work
+```
+
+**If 1 session found:**
+- Ask "要 restore {id} 嗎？" + show J/M/0 options
+
+**If N sessions found:**
+- List all sessions + J/M/0:
 ```
 Available sessions:
 1. {id} ({date}) -- {summary}
-2. ...
+2. {id} ({date}) -- {summary}
 J. 查看最近更新的 JIRA tickets (近 3 天)
 M. 查看我的所有 open tickets
 0. Start new work
