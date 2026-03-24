@@ -46,9 +46,9 @@ flowchart TD
 
 | Terminal | Working Dir | JIRA Tracker |
 |----------|------------|--------------|
-| reactor-fw | `D:\mybot\git\reactor-fw` | FWP-737 |
-| reactor-50-100-fw | `D:\mybot\git\reactor-50-100-fw` | FWP-737 |
-| esp32 | `D:\mybot\git\pg-reactor-esp32-wifi-bt` | FWP-738 |
+| reactor-fw | `D:\mybot\git\reactor-fw` | FWP-739 |
+| reactor-50-100-fw | `D:\mybot\git\reactor-50-100-fw` | FWP-739 |
+| esp32 | `D:\mybot\git\pg-reactor-esp32-wifi-bt` | FWP-739 |
 | mybot | `D:\mybot` | FWP-739 |
 | fw-multi-agent | `D:\mybot\fw-multi-agent` | FWP-739 |
 
