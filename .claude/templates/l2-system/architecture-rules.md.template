@@ -1,0 +1,70 @@
+# Architecture Rules
+
+**Always-on rules for {{SYSTEM_NAME}}. Non-negotiable.**
+
+---
+
+## Source of Truth
+
+**SPEC.md is the canonical source of truth.**
+
+When ANY conflict exists between docs, SPEC.md wins.
+
+---
+
+## 5-Layer Model
+
+```
+Commands → Agents → Templates & Patterns → Skills → Context Engineering
+```
+
+| Layer | What It Is | What It's NOT |
+|-------|------------|---------------|
+| Context Eng | Token budgets, JIT, anti-patterns | Not domain data |
+| Skills | Knowledge, methods | Not execution logic |
+| Templates | Shape of systems | Not mandatory workflows |
+| Agents | Orchestrators with tools | Not skills |
+| Commands | Entry points | Not business logic |
+
+**Skills inform decisions. Tools execute actions.**
+
+---
+
+## Context Engineering Rules
+
+1. CLAUDE.md: Only what's needed every conversation
+2. Agent files: One concern per file
+3. Skills: Progressive disclosure — SKILL.md summarizes, supplementary files go deep
+4. Context files: One topic per file, independently loadable
+5. No context stuffing: JIT loading, not eager loading
+6. No duplication: Single source + references
+
+---
+
+## Anti-Hallucination Rules
+
+{{ANTI_HALLUCINATION_RULES}}
+
+---
+
+## Token Budgets
+
+| File | Limit |
+|------|-------|
+| CLAUDE.md | < 60 lines |
+| Agent files | < 200 lines |
+| Skill SKILL.md | < 100 lines |
+
+---
+
+## Do NOT
+
+1. Add skills without updating SPEC.md
+2. Create skills without SKILL.md
+3. Create agents without YAML frontmatter
+4. Store raw data in git
+5. Front-load context ("load all before ANY task")
+
+---
+
+*These rules exist to maintain architecture integrity.*

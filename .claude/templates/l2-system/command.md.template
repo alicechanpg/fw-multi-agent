@@ -1,0 +1,15 @@
+{{COMMAND_DESCRIPTION}}
+
+## Usage
+
+```
+/{{COMMAND_NAME}} {{COMMAND_ARGS}}
+```
+
+## What Happens
+
+{{COMMAND_STEPS}}
+
+## Prerequisites
+
+{{COMMAND_PREREQUISITES}}

@@ -1,0 +1,49 @@
+# Memory Governance
+
+This directory stores learnings and corrections from {{SYSTEM_NAME}} sessions.
+
+## Files
+
+| File | Purpose | Update Frequency |
+|------|---------|------------------|
+| `corrections.md` | Factual corrections and learnings | Per session |
+| `patterns.md` | Validated code and workflow patterns | When proven |
+| `decisions.md` | Architecture decisions and rationale | When made |
+
+## Memory Protocol
+
+### Session Memory (Ephemeral)
+- Current conversation context
+- Not persisted
+
+### Working Memory (corrections.md)
+- Corrections made during sessions
+- Learnings about this specific project
+- Updated frequently
+
+### Long-Term Memory (patterns.md, decisions.md)
+- Validated patterns
+- Architecture decisions
+- Updated when proven useful
+
+## Adding Corrections
+
+Format:
+```markdown
+## [Date] - [Topic]
+
+**Before:** [What was incorrect]
+**After:** [What is correct]
+**Source:** [Evidence - file:line or command output]
+```
+
+## Promoting to Patterns
+
+When a correction is validated multiple times:
+1. Move from corrections.md to patterns.md
+2. Add validation evidence
+3. Link to source code if applicable
+
+---
+
+*Memory is the antidote to hallucination.*

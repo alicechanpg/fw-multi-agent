@@ -1,0 +1,9 @@
+---
+name: {{AGENT_NAME}}
+description: {{AGENT_DESCRIPTION}}
+model: {{AGENT_MODEL}}
+tools:
+{{AGENT_TOOLS}}
+---
+
+{{AGENT_CONTENT}}
