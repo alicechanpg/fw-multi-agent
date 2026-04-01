@@ -1,53 +1,49 @@
 # Session Handover (mybot) — 2026-04-01 00:00
 
 ## Done
-- **FWP-744 ReactorFwUpdater：**
-  - Repo/CMake/scripts 全部就緒
-  - PM Spec: mikelee 提供 Google Doc + CDP-89
-  - Figma: Teo 3/16 提供 Reactor UI Settings，Alice 已取得權限
-  - FWP-744 改為 Backlog（先專注 SG-7/FWP-704）
-  - JIRA 共 6 則 comment
-- **SG-7 Smart Guitar POC — 完整實作：**
-  - 確認架構：Spark 2 #1 (Guitar/GATTS) → Spark 2 #2 (AMP/GATTC)
-  - PM (Kevin) 確認方案：Spark 2 + Spark 2（不用 Reactor）
-  - Clone Spark 2 ESP32 repo: wifi-and-bt-core-on-esp32
-  - Clone Spark 2 STM32 repo: spark-ii-fw
-  - 完整分析 BLE code: GATTS(0xFFC0), GATTC(0xFFC8), Control X protocol
-  - 確認 CMD format: [03 00 00 00 action_byte] (GATT_COMMAND raw bytes)
-  - 建 branch: feature/SG-7-smart-guitar-poc
-  - 寫完整 code: sg7_guitar component + BLE SG7 mode + CLI 測試
-  - AI review 發現並修復 rXX CLI bug + 加連線檢查
-  - Committed: feat(SG-7): Add Smart Guitar Mode
-  - Build scripts: build-spark2-esp32.ps1, build-spark2-stm32.ps1, flash-spark2-stm32.ps1
-  - Jenkins 調查: SPARK_ESP32_FW, SPARK_II_FW, REACTOR_FW_UPDATER 全部找到
-  - JIRA SG-7 共 4 則 comment（方案更新 + code 完成）
-- **JIRA 整理：** FWP-744 改 Backlog，CX-83 維持審核中
-- **Slack：** 問 Teo (spec/USB)、問 mikelee (PM spec)、搜尋 Figma/Guitar spec
-- **Memory 更新：** FWP-744 project + role 確認
-- Spark Guitar Spec 找到: Kevin 的 Google Sheets (0316 Panel sheet)
+- **Spark Pedal FW 環境建置（Teo 指派）：**
+  - Clone spark-pedal-fw repo 到 `D:\mybot\git\spark-pedal-fw\` (from GitLab)
+  - 處理 4 個 submodule (MsgPack, PGLooper, pg-utilities, PGMetronome) — SSH→HTTPS 轉換成功
+  - 觸發 Jenkins SPARK_PEDAL_FW build #6 (BRANCH=develop) — SUCCESS
+  - 下載 ARM GCC 10.3-2021.10 到 `C:\ST\gcc-arm-none-eabi-10.3-2021.10\`
+  - 本地 build spark-pedal-fw 成功 (GCC 10.3 + make)
+    - Output: `D:\mybot\git\spark-pedal-fw\Debug\spark-pedal-fw.bin`
+    - Size: text 915KB, data 1.9KB, bss 426KB, total 1.29MB
+  - 確認 Spark Pedal ESP32 repo = `wifi-and-bt-core-on-esp32` (已有 clone)
+  - 確認 Spark Pedal 完整 FW 三個 repo：
+    1. `spark-pedal-fw` (STM32 H750 主控) — 已 clone + build
+    2. `wifi-and-bt-core-on-esp32` (ESP32 藍牙/WiFi) — 已有 clone
+    3. `spark-pedal-external-loader` (Bootloader) — 尚未 clone
 
 ## Pending
 | Item | Status | Next Step |
 |------|--------|-----------|
+| ESP32 build for Pedal | 未開始 | 切 develop，用 DEVICE_NAME=Spark PEDAL build |
+| Bootloader repo | 未 clone | Clone spark-pedal-external-loader if needed |
 | SG-7 實機測試 | Code ready | Build + Flash Spark 2 #1 → 連 Spark 2 #2 測試 |
-| SG-7 manufacturer data | 未確認 | 確認 Spark 2 GATTC scan 是否檢查 manufacturer data |
 | FWP-744 VS2022 | setup_env.ps1 已跑 | 確認 VS2022 是否安裝成功 |
-| FWP-744 Patch files | 未下載 | Slack DM Teo 3/17 下載 |
-| Teo 回覆 | 等待中 | spec + USB 測試注意事項 |
-| CDP-89 權限 | 無 | 申請 CDP project 存取 |
-| Spark Guitar Spec | 找到 Kevin 的 Sheets | Alice 閱讀 |
 
 ## Environment
 - mybot: master
-- wifi-and-bt-core-on-esp32: feature/SG-7-smart-guitar-poc @ 0c38d44
+- spark-pedal-fw: develop @ a0b8a07
+- wifi-and-bt-core-on-esp32: feature/SG-7-smart-guitar-poc @ 0c38d44 (develop available)
 - spark-ii-fw: develop
-- ReactorFwUpdater: dev @ 86e3027
-- CMake: 4.3.0 (pip)
+- GCC 10.3 installed: `C:\ST\gcc-arm-none-eabi-10.3-2021.10\`
+- Jenkins SPARK_PEDAL_FW Build #6: SUCCESS
+- Hardware: N/A (no flash done)
 
 ## Notes for next session
-- **SG-7 測試：** `idf.py menuconfig` → Enable SG-7 → build → flash COM19 → 開另一台 Spark 2 測試
-- CLI: p1-p4, pn/pp, b1/b2, ls/lr/lp/lc, rXX, status
-- Spark Guitar Spec: https://docs.google.com/spreadsheets/d/1PzL5eUgISXF7WWElnXlFMiat4PqpAPmxss6REwzd9_A/edit?gid=1481094363
-- FWP-744 Figma: https://www.figma.com/design/HBmPjtD9LmvZqCNrCdzabi/Reactor---UI--Settings?node-id=236-10364
-- FWP-744 PM Spec: https://docs.google.com/document/d/1j4qQUoS_KDNVMMhG_xRGcJXWH8yoWI3Vl8pLdsJ9AdI/edit
+- **本地 build spark-pedal-fw 流程：**
+  1. `export PATH="/c/ST/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"`
+  2. 先用 CubeIDE headless (暫改 .cproject 到 12.3) 生成 Debug/Makefile
+  3. 還原 .cproject，從 subdir.mk 移除 `-fcyclomatic-complexity`
+  4. `find . -name "*.o" | sort > objects.list`
+  5. 用 CubeIDE 的 make + GCC 10.3 build
+- **Make 路徑:** `/c/ST/STM32CubeIDE_1.16.1/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.make.win32_2.1.300.202402091052/tools/bin/make.exe`
+- **GCC 12 vs 10 問題：** GCC 12 移除隱式 header include，submodule 編譯失敗；需用 GCC 10.3
+- **Jenkins jobs:**
+  - SPARK_PEDAL_FW: BRANCH=develop
+  - SPARK_ESP32_FW: BRANCH=develop, DEVICE_NAME=Spark PEDAL
+  - SPARK_PEDAL_BOOTLOADER_FW: BRANCH=develop
+- **submodule SSH→HTTPS:** `git config url."https://git.positivegrid.com:8443/".insteadOf "git@git.positivegrid.com:8022:"`
 - Kevin Huang (PM): U0103Q0MW6A, mikelee: U3HBR7F7U, Teo: U09J2791SR0
