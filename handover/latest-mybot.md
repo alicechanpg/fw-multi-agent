@@ -1,46 +1,63 @@
-# Session Handover (mybot) — 2026-04-02 12:10
+# Session Handover (mybot) — 2026-04-02 13:30
 
 ## Done
-- Session restore from 2026-03-30
-- 讀取 Chiyang DM — 確認 Reactor-SW 權限已開好（3/30 try again）
-- 成功 clone Reactor-SW umbrella repo（含所有 submodule）
-- 完整分析 Reactor-SW 結構（5 submodule + repo-runner + reactor-bot + learnings）
-- 讀取 #reactor-bot-小天地 頻道 — Chiyang 4/2 LOCAL A2A deadline, Bo SessionStart Hook 教學
-- 讀取 Nathan+Alice+Chiyang+Teo Group DM — 確認團隊統一用 reactor-50-100-fw（不是 reactor-fw）
-- 讀取 Wayne Lee DM — MIS 建議用 FW 部門既有測試機（Mac），不另外申請
-- 更新 FWP-749 JIRA comment（Mac 測試機密碼待確認、ESP32/STM32 macOS build 評估中、本週 Pedal task urgent 所以 pending）
-- ESP32 macOS build 可行性分析：ESP-IDF 4.4.8 + pyenv 3.9 可行（評估中，未實際操作）
-- GitLab→GitHub patch migration：19 個 commits cherry-pick 到 reactor-50-100-fw PR#2
-  - 包含 FWP-673, FWP-674, FWP-700, FWP-724, RAD-966, RAD-1005 等
-  - 解了 factory data conflicts（用 GitLab theirs 版本）
-  - 同步了 reactor_amp_data.h（缺少的 get_reactor_amp_preset_data alias）
-  - PR reviewer: Teo
-- STM32 build 驗證：Make build 成功（需修正 Makefile include path 從舊 Desktop 路徑改到 D:/mybot/git/）
-- 記錄 migration 進度到 FWP-749
+- **FWP-698 Bypass CAB SIM — 完成**
+  - Code 實作：double tap encoder toggle, peach LED, 持久化, preset 隔離
+  - Ziv push 了 LED/click 修正 + 新 DSP lib（2 commits on branch）
+  - Pull Ziv 的更新，GCC 10.3 build 成功
+  - 發現 external loader 問題：必須用 `W25Q32JV_STM32H750.stldr`（不是 QSPI_H750XB_W25Q32_flashloader.stldr）
+  - 實機測試全部通過：bypass toggle、LED peach、聲音變化、preset 不受影響
+  - Peach LED 調色：120,45,25 → 85,12,12（減少偏白/黃）
+  - DSP team + SW PM 確認聲音 OK
+  - Preset 隔離分析完成（code review 確認 BLE 傳 preset 是讀 file 不是 live dump）
+  - JIRA 更新完成，等 Ziv merge
+- **Bootloader 修復**
+  - 昨天 `-e all` 擦掉 bootloader，今天用 Jenkins 版本燒回
+  - 確認 bootloader 正常（Jump to APP code）
+- **External loader 根因**
+  - `QSPI_H750XB_W25Q32_flashloader.stldr` 寫入後 app HardFault
+  - `W25Q32JV_STM32H750.stldr` 才是正確的 loader
+  - 已更新 JIRA 和 handover 記錄
 
 ## Pending
 | Item | Status | Next Step |
 |------|--------|-----------|
-| PR#2 Teo review | 等待中 | 等 Teo review + merge |
-| Pedal task support | 本週 urgent | 處理完再回來 FWP-749 |
-| 回覆 Chiyang 權限 OK | 未發送 | Slack DM draft 已準備好 |
-| FWP-749 AgentCard | 未開始 | PR merge 後，走 submodule-onboarding 流程 |
-| Mac 測試機密碼 | 等 Teo 回覆 | 拿到後建 Mac build 環境 |
-| ESP32 macOS build | 評估中 | 等有 Mac 後實際測試 |
-| STM32 macOS build | 評估中 | 同上 |
-| Bo SessionStart Hook | 未設定 | 參考 Bo 做法，排除 FW repo |
+| FWP-698 MR merge | 等 Ziv | Ziv merge branch 到 develop |
+| Peach LED 最終確認 | 85,12,12 測試中 | PM 最終確認顏色 |
+| FWP-749 Mac 環境 | Plan 已寫 | 等拿到 Mac |
+| Jenkins token | 過期，無 admin 權限 | 找 Teo/Ziv 幫忙 |
 
 ## Environment
-- Branch: `chore/migrate-gitlab-patches` (reactor-50-100-fw)
-- Branch: `master` (mybot)
-- Hardware: N/A
-- Reactor-SW clone 在 D:/mybot/git/Reactor-SW/
-- GitLab remote 已加到 reactor-50-100-fw（`gitlab` remote）
-- Makefile include path 已本地修正（70 個 .mk 檔），未 commit（不是 repo code）
+- spark-pedal-fw: `feature/FWP-698-bypass-cab-sim` @ 248a6d1 (Ziv's latest)
+- 本機未 commit 的改動：user_config.h (APP_DEBUG), AudioService.cpp (ASV_DEBUG), LedService.h (peach 85,12,12)
+- Internal flash: Jenkins bootloader (spark-pedal-external-loader.bin)
+- External flash: FWP-698 debug build (GCC 10.3)
+- spark-pedal-external-loader: develop @ 9e34cdc (已 clone + build)
+- Hardware: Spark Pedal 已接 ST-Link V3, COM50 @ 921600
 
 ## Notes for next session
-- PR#2 有 revert + revert-revert 的 noise commit，Teo 可能會問
-- Makefile 的 hardcoded path `C:/Users/alice/Desktop/20251013/` 需要在 CubeIDE 裡重新 generate 才能根治
-- 「不要自己修 code」的 feedback 已記錄，但 repo migration 同步檔案是例外
-- Pedal task 是本週 urgent，FWP-749 暫時 pending
-- 四月中 Calvin review deadline，剩約 8 個工作天（扣掉 Pedal task）
+### ST-Link Flash 正確指令
+```bash
+# 正確的 external loader（重要！）
+STM32_Programmer_CLI -c port=SWD -el W25Q32JV_STM32H750.stldr -d spark-pedal-fw.bin 0x90000000 -rst
+
+# 不要用這個（會 HardFault）！
+# STM32_Programmer_CLI -c port=SWD -el QSPI_H750XB_W25Q32_flashloader.stldr ...
+
+# 不要用 -e all（會擦掉 bootloader）！
+```
+
+### Build 流程（本機）
+1. CubeIDE 1.16.1 headless 產生 Makefile（.cproject 需改成 12.3）
+2. `find . -name "*.mk" -exec sed -i 's/ -fcyclomatic-complexity//g' {} \;`
+3. GCC 10.3: `export PATH="/c/ST/gcc-arm-none-eabi-10.3-2021.10/bin:$PATH"`
+4. `make -j8 all`
+
+### Ziv Slack 訊息重點
+- branch 更新到最新就可以測試
+- 需要確認：1) cab bypass 聲音 OK? 2) 會不會影響 preset?
+- 兩個都已確認 OK
+- DSP owner: Jason
+
+### 群組 DM
+- Channel: C0AQ3S8S4DU（Alice + Ziv + Teo）
