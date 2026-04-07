@@ -1,40 +1,44 @@
-# Session Handover (mybot) — 2026-04-07 15:15
+# Session Handover (mybot) — 2026-04-07 17:40
 
 ## Done
-- **FWP-755 [Reactor 100] bypass 無聲 — Closed**
-  - DFU 燒錄 DSP_BYPASS binary 給 EE (Lio 在 #tf-reactor-hw-noise 提供)
-  - ENABLE_AKM7755_EXTERNAL_CONTROL: commit 588ad40 (Hijay, 2025-08-29)
-- **SG-7 BLE 直連 POC — Phase 1-4 ALL PASS**
-  - Phase 1: 基本連線 6/6, 0.6s 自動連線
-  - Phase 2: 1000 次混合 CMD 壓測 100%, avg 67ms
-  - Phase 3A: 60min 穩定性 681cmd 100% OK, 0 disconnects
-  - Phase 3B: 斷線重連 4/4, avg 4.1s, 1 次即連
-  - Phase 4A: ADV 策略 — 雙 UUID 可見 (BLE Explorer 截圖)
-  - Phase 4B: Dual GATTS — 0xFFC0 + 0xFFC8 同時註冊
-  - Phase 4C: 並行操作 — App + AMP 同時連線 CMD 正常
-  - Phase 4D: 資源開銷 — 雙連線僅多用 5.2KB RAM
-  - Phase 4E: 雙連線穩定性 — 10min 150cmd 100% OK, 無 memory leak
-  - 5 天連線觀察（4/2→4/7）
-  - Exp pedal BW 評估：100Hz notify BW 餘量 7-12 倍
-- **FWP-758 建立 + link SG-7 + assign Alice**
-- **Guitar #1 救磚**：ST-Link 燒 external-loader + DFU 燒 fw 2.7.2.200
-- **JIRA 完整上下文 comment**：架構圖、build 指令、config 差異、UUID、已知問題、test script、gap analysis
-- **Code pushed**: feature/SG-7-auto-scan (5 commits)
-- **Memory 更新**：JIRA 含 SG board、不停下來問該做就做、migration 才不改 code
+- JIRA 查詢：Alice 近期更新的 tickets (FWP-758, SG-7, FWP-739)
+- ReactorFwUpdater 全面資訊收集（JIRA FWP-744 + CDP-89、Slack 對話 3/11~4/2、PM Spec、Figma）
+- VS2022 BuildTools 安裝完成（winget, MSVC 14.44）
+- FW binaries 設定：R50 MCU v0.1.4.123 + ESP32 rev656
+- R100 FW binaries 從 Jenkins 下載（REACTOR_AMP_FW #147, REACTOR_ESP32_FW #47）
+- Teo's patch apply（tar 解壓 + 手動 apply 文字改動）
+- 雙版本 build 成功：Reactor 50 + Reactor 100 Firmware Updater.exe
+- Figma 設計稿對照、Release 流程確認（signed exe + zip + S3）
+- 實機測試：ESP32 更新成功、CDC 版本查詢成功（MCU 0.1.4.123, ESP 656）、DFU 進入 ack OK
+- 發現並修復 3 個 bug + 1 個 flow 改善：
+  1. allHavingDriver() 空集合 → 加 found flag
+  2. EnterDfuState sleep 1500→3000ms
+  3. DfuWrapper retry 4→10
+  4. CheckUsbDriverState 加 15s polling
+- JIRA 更新：FWP-744 x4 comments, CDP-89 x1 comment
 
 ## Pending
 | Item | Status | Next Step |
 |------|--------|-----------|
-| SG-7 ticket | 可 close | 用戶確認 |
-| FWP-758 | 進行中 | 跟隨 SG-7 狀態 |
+| DFU driver 安裝 (libwdi) | 改了未驗證 | 跑 updater 看 CheckUsbDriverState log |
+| MCU DFU flash | blocked | driver 問題先解決 |
+| loading_loop_rim.png | 未補 | 從原始 repo 取 |
+| macOS build | 未開始 | 需 Mac |
+| Reactor 100 rebuild | 未做 | bug fix 後重 build |
+| Code uncommitted | 7 files changed | commit 或讓 Teo review |
 
 ## Environment
-- wifi-and-bt-core-on-esp32: feature/SG-7-auto-scan (clean, pushed)
-- Guitar #1 (COM27): SG7 dual mode, STM32 fw 2.7.2.200
-- AMP #2 (COM29): normal mode + auto-scan
-- COM26/28: PG USB, COM50: ST-Link
+- Repo: D:\mybot\git\ReactorFwUpdater, branch dev @ 86e3027 + patch + fixes (uncommitted)
+- Build: build-reactor50/, build-reactor100/
+- Hardware: Reactor 100（FW 枚舉為 Reactor 50 PID 0503/0507）
+- USB Relay: COM3 (OFF), Reactor CDC: COM15, Spark 2: COM26+COM28
+- VS2022 BuildTools, CMake 4.3.0, JUCE 8.0.7
 
 ## Notes for next session
-- SG-7 POC 全部完成，Production gap: STM32 整合、exp pedal ADC、距離測試、App 實際連線、Security
-- 測試距離 60cm（非 1m），已修正 JIRA
-- 兩台同 branch 不同 sdkconfig：Guitar=SG7_DUAL_MODE, AMP=都 off
+- 核心問題：DFU WinUSB driver 沒裝，libwdi 自動安裝未驗證
+- 快速驗證：啟動 updater → Next → 看 log "DFU device found/needs driver"
+- 備案：Zadig 手動裝 WinUSB for 295D:0504
+- Reactor 100 硬體的 FW USB descriptor 是 R50 PID，用 R50 Updater 測
+- ESP32 被刷了多次 R50 FW，之後要用 R100 FW 刷回
+- Figma: HBmPjtD9LmvZqCNrCdzabi node 236:10364
+- PM Spec: Google Doc 1j4qQUoS_KDNVMMhG_xRGcJXWH8yoWI3Vl8pLdsJ9AdI
