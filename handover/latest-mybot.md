@@ -1,5 +1,9 @@
 # Session Handover (mybot) — 2026-04-15 15:30
 
+## 狀態：PENDING — 先做 FWP-664 (Reactor Control MAC-Based Auto Reconnect)
+
+STFS-491 bootloader 修法已完成並 push，剩 JUCE updater probe 問題。暫時擱置，優先處理 FWP-664。
+
 ## Done (STFS-491: Spark MINI/GO Firmware Update Failure on Win 25H2)
 
 ### Bootloader Fixes (g1x-bootloader, feature/spark-go-develop-gd, 15 commits)
