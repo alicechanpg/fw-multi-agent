@@ -1,34 +1,45 @@
-# Session Handover (mybot) — 2026-04-16 20:30
+# Session Handover (mybot) — 2026-04-17 14:00
 
-## Done
+## 重大發現：BLE 連線可能沒斷
 
-### FWP-664: Reactor Control MAC-Based → Name-Based Auto Reconnect
+120 秒 serial capture 顯示連上後完全靜默 — 沒有 DISCONNECT event、沒有 retry scan。
+如果 BLE 真的斷了，應該看到 0x80 → RECONNECT → 第二次 scan。都沒有。
 
-1. **Root cause found**: BLE random address — Control 每次開機 MAC 都換，MAC filter 永遠 match 不上
-2. **ESP32 fix**: MAC filter 改成 name suffix filter（prefix "Reactor v" + 倒數 4 碼 unique ID）
-3. **ESP32 測試通過**: 場景 1 ✅ (boot reconnect suffix match), 場景 2 ✅ (re-pair + reboot)
-4. **STM32 disconnect handler bug found**: 雙重 RECONNECT → race condition → 斷線
-5. **A/B test**: ESP32 develop + STM32 develop = 連線穩定 → STM32 FWP-664 是斷線原因
-6. **ESP-IDF Python 環境修復**
+**假設：BLE link 還活著，用戶看到的「斷線」是 Control LED 行為（不是真的 BLE 斷線）。**
 
-## Pending
+## 下次第一件要做的事
 
-| Item | Status | Next Step |
-|------|--------|-----------|
-| STM32 double RECONNECT fix | Code 已改，make build OK | 用 CubeIDE build 測試 |
-| ESP32 NVS save timing | TODO | 從 GATTC callback 移到 async task |
-| 場景 3-5 測試 | 未測 | 等 STM32 fix 驗證 |
-| Commit + push | 未做 | fix 驗證後 commit |
+1. Flash 目前的 firmware（reactor-fw FWP-664 v2 + ESP32 develop）
+2. 開機 → boot RECONNECT → 連上
+3. **按 Control 上的腳踏板** → 看 ESP32 log 有沒有收到 pedal data
+4. 如果有 → BLE 連線是活的 → 「斷線」是 Control LED 問題，不是 BLE 問題
+5. 如果沒有 → BLE 真的斷了 → 需要加 LOGI disconnect log 到 ESP32 看 reason
 
-## Environment
+## Done This Session
 
-- ESP32: feature/FWP-664_mac_auto_reconnect (uncommitted name-filter + debug cleanup)
-- STM32: FWP-664-rebase on reactor-50-100-fw (uncommitted double-RECONNECT fix)
-- Hardware: relay COM3, STLink COM4, ESP32 COM19, 2x Control (f6c3, e4d4)
+1. reactor-fw FWP-664 v2 branch 建立（從 develop，乾淨的 10 行 diff）
+2. Sequence diagrams 完成（5 user scenarios + edge cases）
+3. Design decisions 確認（always RECONNECT, MAC filter, continuous retry）
+4. Make build baseline 修復（clean build 解決 stale objects）
+5. 確認 MAC 是 static（不會變）
 
-## Notes for next session
+## Current State
 
-1. 用 CubeIDE build reactor-50-100-fw（不用 make）測試 STM32 fix
-2. ESP32 NVS save 需要 async（目前從 callback 移除了）
-3. Mike 的 5 個測試場景：1-2 PASS，3-5 待測
-4. reactor-fw 改動可忽略（硬體跑 reactor-50-100-fw）
+### STM32 (reactor-fw)
+- Branch: feature/FWP-664-auto-reconnect-v2
+- 3 changes: boot RECONNECT, disconnect handler, scan timeout retry
+- Clean build PASS, flashed on hardware
+
+### ESP32 (pg-reactor-esp32-wifi-bt)
+- Branch: develop（零改動）
+- FWP-664 name filter changes 在 stash 裡
+- **注意：develop 的 GATTC_DISCONNECT log 是 ESP_LOGD（看不到）**
+
+### Hardware
+- relay COM3, ESP32 COM19
+- 2x Control: f6c3 (b.28), e4d4 (b.30)
+
+## Key Files
+- `D:\mybot\docs\FWP-664-user-scenario-design.md` — 5 scenarios + design decisions
+- `D:\mybot\docs\FWP-664-revised-sequence-diagrams.md` — low level sequence diagrams
+- `D:\mybot\docs\FWP-664-ble-sequence-diagrams.md` — develop baseline analysis
