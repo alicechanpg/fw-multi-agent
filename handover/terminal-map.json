@@ -1,16 +1,6 @@
 {
   "terminals": {
-    "reactor-fw": {
-      "working_dir": "D:\\mybot\\git\\reactor-fw",
-      "jira": "FWP-739",
-      "latest": "latest-reactor-fw.md"
-    },
-    "reactor-50-100-fw": {
-      "working_dir": "D:\\mybot\\git\\reactor-50-100-fw",
-      "jira": "FWP-739",
-      "latest": "latest-reactor-50-100-fw.md"
-    },
-    "esp32": {
+"esp32": {
       "working_dir": "D:\\mybot\\git\\pg-reactor-esp32-wifi-bt",
       "jira": "FWP-739",
       "latest": "latest-esp32.md"
