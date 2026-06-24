@@ -1,38 +1,52 @@
-# Session Handover (mybot) — 2026-06-14 17:00
+# Session Handover (mybot) — 2026-06-24 09:10
 
-## Done
-- 分析 Round 3 stress test cycle 4 的 btController WDT crash
-  - addr2line 解碼: `btdm_controller_task` → `ble_try_turn_on_pll_track` → `rw_schedule` (全 closed-source)
-  - 排除 branch/sdkconfig 差異
-- 決定 Round 3 conn params: latency=4→0, interval 500-1000ms, timeout=20s
-  - 修改 ble.c 並 build 成功
-- JIRA FWP-809 已更新 3 個 comment:
-  - #90166: crash 報告 + 為什麼改 latency + 參數對照表 + 測試計畫
-  - #90167: BLE vs WiFi radio 佔用比較表（原始/R2/R3 對照）
-  - #90168: 下一步計畫 — OTA 100% 後降 TX power 到 3dBm + progress bar 改 3%
-- 向用戶解釋 latency=0 行為（每 500-1000ms 固定插隊一次，radio 佔比 <0.2%）
-- 計算 progress bar 間距：每 10% = 8.3s → 3% ≈ 2.5s 最接近 2 秒更新
+## 本次完成
+- FWP-814: Spark LIVE/2/EDGE 加入 ReactorFwUpdater — **第一版（compile-time branching）已完成但架構錯誤**
+- Branch `feature/FWP-814-spark-products` 已 push（compile-time `#ifdef SPARK_FLOW`，3 個分開 build）
+- 用戶要求改為 **unified build**（`-DPRODUCT=spark`，runtime auto-detect，像 Reactor 支援 R50+R100）
+- 寫了新版 design document：`D:\mybot\git\ReactorFwUpdater\docs\FWP-814-spark-unified-design.md`
+- JIRA FWP-814 已加 comment：implementation 完成 + icon 需求
 
-## Pending
-| Item | Status | Next Step |
-|------|--------|-----------|
-| Flash + Round 3 stress test | Build 完成，未 flash | Flash COM7 → 跑 50+ cycles |
-| Round 3 通過後：降 TX power | 計畫中 | OTA 100% 後 TX power P9(9dBm) → P3(3dBm) |
-| Round 3 通過後：progress 3% | 計畫中 | progress bar 10% → 3%（~33 次 notification/OTA） |
-| GATTC conn param 放寬 | 未實作 | 加到 ble_relax_conn_params_for_ota()，放寬 footswitch 連線 |
-| PR #50 更新 | 等 Round 3 結果 | 結果好 → 更新 params, 移除 WIP |
-| test tracking doc | 待更新 | docs/FWP-809-ble-ota-test-tracking.md |
+## 未完成 / 進行中
+| 項目 | 狀態 | 下一步 |
+|------|------|--------|
+| Unified Spark build | Design doc 完成，待實作 | 照 design doc 在 `feature/skip-esp32-unified` branch 實作 |
+| Runtime auto-detect | 設計完成 | 加 `usb::findSparkPid()` 掃 USB PID (0x0222/0x0232/0x0252) |
+| `#ifdef` → runtime | 設計完成 | 所有 `#ifdef SPARK_FLOW` 改成 `getProductConfig().isSparkFlow()` |
+| App icon | JIRA comment 已寫 | 等設計團隊提供 |
 
-## Environment
-- Branch: develop (stash applied: MAX_NUM=2, SIMULATION=1)
-- ble.c conn params: 500-1000ms, latency=0, timeout=20s (已 build, 未 flash)
-- PR #50 branch `fix/ota-ble-coex-conn-params`: 仍是 Round 2 params
-- COM7: ESP32, COM4: STM32, COM3: USB relay
-- Hardware: Reactor 100
+## 環境狀態
+- 當前 branch: `feature/skip-esp32-unified`（已切回，準備在此 branch 實作）
+- `feature/FWP-814-spark-products` branch 存在但架構錯誤（compile-time），**不要用**
+- Firmware 已下載到 `D:\mybot\git\ReactorFwUpdater\Images/` (spark-live, spark-2, spark-edge)
+- Assets 已在 `D:\mybot\git\ReactorFwUpdater\Assets/` (spark_*.png)
+- Build 環境已驗證：VS2022 + CMake 可 build 所有產品
 
-## Notes for next session
-- crash log: D:\mybot\git\tool\ble_captures\esp32_log_cycle4_152554.txt
-- Round 3 通過 50+ cycles → 更新 PR #50 並移除 WIP
-- Round 3 還是 crash → 問題不在 latency，考慮 heap pressure / WiFi task CPU affinity
-- GATTC footswitch 放寬沒做（測試沒接 footswitch 不影響）
-- 降 TX power 和 progress 3% 是 Round 3 之後的下一步，不要混在這輪
+## 給下個 session 的備註
+
+### 📄 Design Document 位置
+**`D:\mybot\git\ReactorFwUpdater\docs\FWP-814-spark-unified-design.md`**
+
+這是 unified Spark build 的完整設計，包含：
+- Runtime detection 架構（掃 USB PID 偵測 LIVE/2/EDGE）
+- 每個檔案要改什麼（13 個檔案的具體修改說明）
+- State machine flow（Spark vs Reactor 對比）
+- USB PID 對照表
+- Firmware 打包結構
+
+### 關鍵設計決策
+1. **NO `#ifdef SPARK_FLOW`** — 全部用 runtime `getProductConfig().isSparkFlow()`
+2. **Auto-detect** — `usb::findSparkPid(vid)` 掃 0x0222/0x0232/0x0252，跟 `findBtAudioPid()` 同模式
+3. **products.json** 加 "spark" unified entry，`updateFlow: "spark"`
+4. **EspWrapper** port-optional：Spark 不傳 `--port`（auto-detect），Reactor 必須傳
+5. **DfuWrapper** 用 `config.fwBinName` 取代 hardcoded "mcu-fw.bin"
+
+### 已有的資源（不用重新下載）
+- Jenkins firmware: `Images/spark-live/`, `Images/spark-2/`, `Images/spark-edge/`
+- Product images: `Assets/spark_*.png`（從 SparkLiveFwUpgradeLauncher 複製）
+- App icons: placeholder（等設計團隊）
+
+### 已驗證的事實
+- Spark normal-mode PID == DFU PID（已從 SparkLiveFwUpgradeLauncher source 驗證，`dfu-util` 靠 USB class 區分）
+- `findBtAudioPid()` 用 libwdi `wdi_create_list` 掃 USB — 同機制可掃 Spark PID
+- Reactor unified build 不受影響（`isSparkFlow()` 只在 updateFlow=="spark" 時 true）
