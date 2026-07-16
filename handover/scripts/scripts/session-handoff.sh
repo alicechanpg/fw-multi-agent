@@ -13,8 +13,11 @@ mkdir -p "$HANDOVER_DIR/sessions/$TERMINAL_ID"
 
 # Build the audit digest from the hook's own trail, and detect a stale latest-*.md.
 # This does not depend on Claude having remembered to write anything.
+# Exit code 2 from the digest means the handover is stale; it is propagated at the end so
+# the asyncRewake hook wakes Claude to write it.
 HOOK_INPUT=$(cat)
 HOOK_OUT=$(printf '%s' "$HOOK_INPUT" | python "$HANDOVER_DIR/scripts/session-digest.py" 2>/dev/null)
+DIGEST_RC=$?
 
 # Copy latest to session archive
 if [ -f "$HANDOVER_DIR/latest-${TERMINAL_ID}.md" ]; then
@@ -23,9 +26,9 @@ fi
 
 # Push to GitHub. Emit the digest's verdict first so a stale handover is still reported
 # even if the repo is missing and we bail out early.
-emit() { if [ -n "$HOOK_OUT" ]; then echo "$HOOK_OUT"; else echo '{"suppressOutput":true}'; fi; }
+emit() { [ -n "$HOOK_OUT" ] && echo "$HOOK_OUT"; exit "$DIGEST_RC"; }
 
-cd "$REPO_DIR" 2>/dev/null || { emit; exit 0; }
+cd "$REPO_DIR" 2>/dev/null || emit
 git pull --quiet 2>/dev/null
 
 # Sync files

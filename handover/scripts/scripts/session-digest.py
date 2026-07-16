@@ -101,13 +101,22 @@ def main():
             )
 
     if warning:
-        print(json.dumps({"systemMessage": f"[handover] {warning}"}, ensure_ascii=False))
-    else:
-        print(json.dumps({"suppressOutput": True}))
+        # Exit 2 so the asyncRewake Stop hook wakes Claude to write the handover it skipped,
+        # rather than only recording that it was skipped. Converges: once latest-*.md is
+        # written its mtime is fresh, so the next Stop passes silently.
+        print(
+            f"{warning}\n\n"
+            f"Write the real handover to {latest} now (what was done, what is unfinished, "
+            f"next step), using sessions/{TERMINAL}/{stamp}-audit.md as the source of truth."
+        )
+        return 2
+    return 0
 
 
 try:
-    main()
+    sys.exit(main())
+except SystemExit:
+    raise
 except Exception as exc:  # never block the Stop hook
-    print(json.dumps({"systemMessage": f"[handover] digest failed: {exc}"}, ensure_ascii=False))
-sys.exit(0)
+    print(f"digest failed: {exc}")
+    sys.exit(0)
