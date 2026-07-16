@@ -11,13 +11,21 @@ DATE_FILE=$(date +"%Y-%m-%d-%H%M")
 # Create session log directory
 mkdir -p "$HANDOVER_DIR/sessions/$TERMINAL_ID"
 
+# Build the audit digest from the hook's own trail, and detect a stale latest-*.md.
+# This does not depend on Claude having remembered to write anything.
+HOOK_INPUT=$(cat)
+HOOK_OUT=$(printf '%s' "$HOOK_INPUT" | python "$HANDOVER_DIR/scripts/session-digest.py" 2>/dev/null)
+
 # Copy latest to session archive
 if [ -f "$HANDOVER_DIR/latest-${TERMINAL_ID}.md" ]; then
     cp "$HANDOVER_DIR/latest-${TERMINAL_ID}.md" "$HANDOVER_DIR/sessions/$TERMINAL_ID/${DATE_FILE}.md"
 fi
 
-# Push to GitHub
-cd "$REPO_DIR" 2>/dev/null || exit 0
+# Push to GitHub. Emit the digest's verdict first so a stale handover is still reported
+# even if the repo is missing and we bail out early.
+emit() { if [ -n "$HOOK_OUT" ]; then echo "$HOOK_OUT"; else echo '{"suppressOutput":true}'; fi; }
+
+cd "$REPO_DIR" 2>/dev/null || { emit; exit 0; }
 git pull --quiet 2>/dev/null
 
 # Sync files
@@ -26,11 +34,14 @@ cp "$HANDOVER_DIR"/terminal-map.json handover/ 2>/dev/null
 cp -r "$HANDOVER_DIR"/sessions/ handover/sessions/ 2>/dev/null
 cp -r "$HANDOVER_DIR"/scripts/ handover/scripts/ 2>/dev/null
 
+cp -r "$HANDOVER_DIR"/audit/ handover/audit/ 2>/dev/null
+
 git add handover/ 2>/dev/null
 if git diff --cached --quiet 2>/dev/null; then
+    emit
     exit 0
 fi
 git commit -m "session($TERMINAL_ID): $TIMESTAMP auto-handoff" --quiet 2>/dev/null
 git push --quiet 2>/dev/null
 
-echo '{"suppressOutput":true}'
+emit
