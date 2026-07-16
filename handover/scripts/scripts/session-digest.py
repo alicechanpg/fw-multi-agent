@@ -36,6 +36,18 @@ def load_trail(session):
     return events
 
 
+def to_local(stamp):
+    """Transcript timestamps are UTC ('...Z'); the audit trail is local time. Mixing them
+    silently reorders the log, which is worse than a missing entry -- it reads as fact."""
+    if not stamp:
+        return ""
+    try:
+        parsed = datetime.datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+        return parsed.astimezone().replace(tzinfo=None).isoformat(timespec="seconds")
+    except Exception:
+        return str(stamp)[:19]
+
+
 def queued_prompts(transcript_path):
     """Recover mid-turn messages, which the UserPromptSubmit hook never sees.
 
@@ -58,8 +70,14 @@ def queued_prompts(transcript_path):
         except Exception:
             continue
         att = rec.get("attachment") or {}
-        if att.get("type") == "queued_command" and att.get("prompt"):
-            found.append({"ts": (rec.get("timestamp") or "")[:19], "prompt": att["prompt"]})
+        if att.get("type") != "queued_command" or not att.get("prompt"):
+            continue
+        prompt = att["prompt"]
+        # Background-task notifications are queued the same way but are machine events,
+        # not the user speaking. Attributing them to the user corrupts the audit.
+        if prompt.lstrip().startswith("<task-notification>"):
+            continue
+        found.append({"ts": to_local(rec.get("timestamp")), "prompt": prompt})
     # The same queued message appears more than once (enqueue, then delivery).
     seen, unique = set(), []
     for item in found:
