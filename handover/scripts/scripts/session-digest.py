@@ -36,8 +36,43 @@ def load_trail(session):
     return events
 
 
-def render(session, events):
+def queued_prompts(transcript_path):
+    """Recover mid-turn messages, which the UserPromptSubmit hook never sees.
+
+    A message sent while Claude is working is queued and delivered as a `queued_command`
+    attachment, so it bypasses the hook entirely -- and those are often the user cutting in
+    to correct course, i.e. exactly what an audit must not miss. The harness transcript is
+    the only complete record, so pull them from there.
+    """
+    if not transcript_path:
+        return []
+    path = pathlib.Path(transcript_path)
+    if not path.exists():
+        return []
+    found = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if '"queued_command"' not in line:
+            continue
+        try:
+            rec = json.loads(line)
+        except Exception:
+            continue
+        att = rec.get("attachment") or {}
+        if att.get("type") == "queued_command" and att.get("prompt"):
+            found.append({"ts": (rec.get("timestamp") or "")[:19], "prompt": att["prompt"]})
+    # The same queued message appears more than once (enqueue, then delivery).
+    seen, unique = set(), []
+    for item in found:
+        if item["prompt"] not in seen:
+            seen.add(item["prompt"])
+            unique.append(item)
+    return unique
+
+
+def render(session, events, queued=()):
     prompts = [e for e in events if e.get("event") == "UserPromptSubmit"]
+    prompts = prompts + [dict(q, event="QueuedMidTurn") for q in queued]
+    prompts.sort(key=lambda e: e.get("ts") or "")
     tools = [e for e in events if e.get("event") == "PostToolUse"]
     failed = [e for e in tools if e.get("ok") is False]
     started = events[0]["ts"] if events else "?"
@@ -55,7 +90,8 @@ def render(session, events):
     ]
     for e in prompts:
         text = " ".join((e.get("prompt") or "").split())
-        lines.append(f"- `{e['ts']}` {text[:300]}")
+        tag = " **[中途插話]**" if e.get("event") == "QueuedMidTurn" else ""
+        lines.append(f"- `{e['ts']}`{tag} {text[:300]}")
 
     lines += ["", "## What was done", ""]
     for e in tools:
@@ -79,10 +115,11 @@ def main():
     session = str(data.get("session_id") or "unknown").replace("/", "_")
 
     events = load_trail(session)
+    queued = queued_prompts(data.get("transcript_path"))
     stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H%M")
     out_dir = HANDOVER / "sessions" / TERMINAL
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / f"{stamp}-audit.md").write_text(render(session, events), encoding="utf-8")
+    (out_dir / f"{stamp}-audit.md").write_text(render(session, events, queued), encoding="utf-8")
 
     # Staleness: was latest-{terminal}.md actually touched during this session?
     latest = HANDOVER / f"latest-{TERMINAL}.md"
