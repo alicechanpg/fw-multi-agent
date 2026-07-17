@@ -1,0 +1,2 @@
+{"ts": "2026-07-18T07:35:07", "event": "UserPromptSubmit", "cwd": "D:\\mybot", "prompt": "去讀你送給我的slack 看等我回什麼"}
+{"ts": "2026-07-18T07:35:28", "event": "PostToolUse", "cwd": "D:\\mybot", "tool": "mcp__claude_ai_Slack__slack_read_channel", "input": {}}
