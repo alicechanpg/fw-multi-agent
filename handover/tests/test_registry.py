@@ -57,3 +57,28 @@ def test_validate_rejects_a_com_key_stored_as_a_constant():
     # COM7-vs-COM19 contradiction got into memory in the first place.
     errs = registry.validate(valid_fact(key="COM:ESP32", volatile=False))
     assert any("volatile" in e for e in errs)
+
+
+def test_validate_rejects_ttl_in_iso_basic_format():
+    # ISO basic format (20260717) must not be accepted, even though it is valid
+    # ISO. Only YYYY-MM-DD is allowed for deterministic string comparison.
+    errs = registry.validate(valid_fact(ttl="20260717"))
+    assert any("ttl" in e for e in errs)
+
+
+def test_validate_rejects_ttl_in_iso_week_date_format():
+    # ISO week-date (2026-W29-5) must not be accepted. Only YYYY-MM-DD.
+    errs = registry.validate(valid_fact(ttl="2026-W29-5"))
+    assert any("ttl" in e for e in errs)
+
+
+def test_validate_rejects_captured_in_iso_basic_format():
+    # ISO basic format must not be accepted for captured either.
+    errs = registry.validate(valid_fact(captured="20260717"))
+    assert any("captured" in e for e in errs)
+
+
+def test_validate_rejects_impossible_date():
+    # Even if the format is YYYY-MM-DD, it must be a real calendar date.
+    errs = registry.validate(valid_fact(captured="2026-13-45"))
+    assert any("captured" in e for e in errs)

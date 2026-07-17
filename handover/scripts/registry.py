@@ -10,6 +10,7 @@ fact, because it passes every downstream check that shares this same source.
 import datetime
 import json
 import pathlib
+import re
 
 REGISTRY = pathlib.Path("D:/mybot/handover/registry/facts.jsonl")
 
@@ -18,6 +19,13 @@ CONFIDENCE = ("verified", "reported", "assumed")
 
 
 def _is_date(value):
+    # fromisoformat on Python 3.11+ accepts ISO basic (20260717) and week-date
+    # (2026-W29-5) formats. The registry requires literal YYYY-MM-DD to ensure
+    # string comparisons for ttl expiry work correctly: if ttl="20260101" and
+    # today="2026-07-17", str(ttl) < today becomes "20260101" < "2026-07-17"
+    # (False, since '0' is 48 and '-' is 45), so an expired fact would read as live.
+    if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(value)):
+        return False
     try:
         datetime.date.fromisoformat(str(value))
         return True
