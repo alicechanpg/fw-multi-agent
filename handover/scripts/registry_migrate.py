@@ -37,10 +37,23 @@ def triage(memory_dir=MEMORY_DIR):
         if path.name == "MEMORY.md":
             continue
         body = path.read_text(encoding="utf-8", errors="replace")
+        lines = body.splitlines()
+        # Frontmatter is a delimited BLOCK, not a set of known keys: real memory
+        # files nest keys under `metadata:` with indented children, so guessing
+        # at key prefixes silently fails on any shape we didn't enumerate. Find
+        # the closing "---" instead and only look for content after it.
+        start = 0
+        if lines and lines[0].strip() == "---":
+            for i in range(1, len(lines)):
+                if lines[i].strip() == "---":
+                    start = i + 1
+                    break
+            else:
+                start = len(lines)  # unterminated frontmatter: no body to show
         first = ""
-        for line in body.splitlines():
+        for line in lines[start:]:
             line = line.strip()
-            if line and not line.startswith(("---", "name:", "description:", "metadata:", "#")):
+            if line and not line.startswith("#"):
                 first = line
                 break
         rows.append({"file": path.name, "suggest": suggest_class(path.name, body), "first_line": first[:80]})

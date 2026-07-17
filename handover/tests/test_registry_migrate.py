@@ -33,3 +33,65 @@ def test_triage_lists_every_markdown_file(tmp_path):
 def test_render_triage_is_a_markdown_table():
     out = registry_migrate.render_triage([{"file": "reference_a.md", "suggest": "fact", "first_line": "x"}])
     assert "| reference_a.md |" in out
+
+
+def test_triage_first_line_skips_nested_frontmatter_block(tmp_path):
+    # Real memory files nest keys under `metadata:` (with a TRAILING SPACE) and
+    # indent the children (`  node_type:`, `  type:`). After .strip() those
+    # indented lines match none of the old exclusion prefixes, so the old
+    # code picked "node_type: memory" as the preview and never reached the
+    # real body line below the closing "---".
+    body = (
+        "---\n"
+        "name: reference-reactor-usb-pid-chip-map\n"
+        "description: Reactor 50 PID_0503 USB Audio 是 Actions BT Audio chip 產生的，不是 STM32 MCU\n"
+        "metadata: \n"
+        "  node_type: memory\n"
+        "  type: reference\n"
+        "  originSessionId: 7b26a649-6ac4-49d5-8d14-003107877db9\n"
+        "---\n"
+        "\n"
+        "Reactor 50 的 USB 設備由不同晶片產生：\n"
+    )
+    (tmp_path / "reference_a.md").write_text(body, encoding="utf-8")
+    rows = registry_migrate.triage(tmp_path)
+    row = next(r for r in rows if r["file"] == "reference_a.md")
+    assert row["first_line"] == "Reactor 50 的 USB 設備由不同晶片產生："
+
+
+def test_triage_first_line_skips_flat_frontmatter_with_unlisted_keys(tmp_path):
+    # Flat frontmatter whose keys (type:, originSessionId:) simply weren't in
+    # the old hard-coded exclusion list -- same failure mode as nested, but
+    # without any indentation involved.
+    body = (
+        "---\n"
+        "type: reference\n"
+        "originSessionId: abc123\n"
+        "---\n"
+        "\n"
+        "真正的內容在這裡\n"
+    )
+    (tmp_path / "reference_b.md").write_text(body, encoding="utf-8")
+    rows = registry_migrate.triage(tmp_path)
+    row = next(r for r in rows if r["file"] == "reference_b.md")
+    assert row["first_line"] == "真正的內容在這裡"
+
+
+def test_triage_first_line_with_no_frontmatter_is_first_body_line(tmp_path):
+    # Pins the existing behaviour the plan's own test relies on: files with
+    # no frontmatter block at all must keep working exactly as before.
+    body = "第一行內容\n第二行\n"
+    (tmp_path / "reference_c.md").write_text(body, encoding="utf-8")
+    rows = registry_migrate.triage(tmp_path)
+    row = next(r for r in rows if r["file"] == "reference_c.md")
+    assert row["first_line"] == "第一行內容"
+
+
+def test_triage_first_line_skips_a_leading_markdown_heading(tmp_path):
+    # A heading is structure, not content -- it must not be used as the
+    # human-facing preview.
+    body = "# Heading Title\n\n真正內容\n"
+    (tmp_path / "reference_d.md").write_text(body, encoding="utf-8")
+    rows = registry_migrate.triage(tmp_path)
+    row = next(r for r in rows if r["file"] == "reference_d.md")
+    assert row["first_line"] == "真正內容"
