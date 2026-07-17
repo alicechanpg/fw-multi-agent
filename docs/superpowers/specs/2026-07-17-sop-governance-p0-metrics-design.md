@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-17
 **Author:** Alice Chan (with Claude)
-**Status:** P0 approved, building
+**Status:** P0 完成並驗證；設計經獨立 opus 稽核 → **v2（needs-changes 已納入，見 §7）**；P1 待啟動
 
 ## 1. 終極目標（The vision）
 
@@ -44,7 +44,7 @@
 一個 spec 塞不下，拆成 5 塊，各自獨立 spec → plan → 實作：
 
 - **P0 — 可評估的 metric 層（本文件）**：量尺。沒有它，後面三層無法評估成效。
-- **P1 — source-of-truth + SOP registry**：結構化、原子化、笨 model 也能並排比對的 facts 清單；收攏散在 `memory/reference_*.md` 的硬體 ground-truth；使用者當場講的事實自動記入。（同時評估現有 memory 系統的包袱並提改寫案。）
+- **P1 — source-of-truth registry（capture-first，見 §7 修正）**：核心是**捕捉管道 + 存入當下驗證**，不是比對引擎。每筆 fact 帶 owner/provenance/scope/TTL；高變動事實（COM/PID）現場探測不快取。收攏散在 `memory/reference_*.md` 的硬體 ground-truth；使用者當場講的事實**經確認後**記入。（先評估現有 memory 包袱＋先量 workload 分布確認捕捉 ROI。）
 - **P2 — cheap worker 自檢**：做事層比對 registry，缺/不確定 → 問使用者或記下。
 - **P3 — opus 每-turn 稽核**：對照 SOP + registry 給 verdict、更新 metric（精算「試誤/糾正」，取代 P0 的代理指標）。
 - **P4 — opus 週期改善**：讀累積稽核，改 SOP/registry 去壓低 P0 的試誤率與 token，閉環。
@@ -112,3 +112,31 @@ Stop hook → session-digest.py
 - 不做獨立 dashboard / Slack 推送（先寫檔，需要再說）。
 - 不呼叫 model（那是 P2/P3）。
 - 不動 memory 系統（P1 處理）。
+
+---
+
+## 7. 獨立 opus 稽核結論 + v2 設計修正（2026-07-17）
+
+一個獨立 opus agent（全新 context、對抗式）稽核本設計。**Verdict: needs-changes**——控制理論骨架正確（hooks 全量 + opus 抽查 + Kaizen loop），但數個承重件需修。以下為納入後的 v2。
+
+### 7.1 角色定義修正
+- **做事 = cheap**：只做 routine/SOP 明確事，一律查 registry；escalation 階梯 **cheap → agent → user**，且 **missing-fact 直達 user-capture、跳過 agent**（agent 只解 reasoning gap，補不了使用者腦中的事實）。
+- **稽核**：hooks 全量廉價（工程控制）；**opus 抽查率設硬上限（個位數 %）**並當一級成本指標；不可逆動作（flash/Jenkins/push/DFU）**100% 硬 gate + 簽核**，不抽樣。
+- **改機制 = opus 週期**：每筆 SOP/registry diff **需人工或第二模型審 + 可回滾**；registry 要有**過期/精簡**紀律（只加不刪會肥、餵肥 cheap model）。
+
+### 7.2 承重缺陷 → 修正
+1. **registry = 單點故障**：doer 自檢 / hook / 全 doer 共用同源，一筆過期資料一起自信地錯。→ 每筆 fact 加 **owner + TTL + provenance + scope**；過期強制升級；**高變動事實（COM/PID）現場探測、不快取**；定期 reality-reconciliation。
+2. **貴 model 用錯位置**：一次 opus 稽核 ≈ 直接用 opus 做完整件事的成本。→ **把 opus 判斷移到「捕捉當下」驗證**（存一次、之後重用都省），而非事後抽查（成本永遠重複）。
+3. **capture 是最高風險（registry poisoning）**：存錯比沒存更糟。→ P1 核心＝**捕捉 + 存入當下驗證**（確認「寫成的事實」而非 freeform 答案）。
+4. **atomization 不消滅智力、只移到擷取+檢索**：笨 model 選錯 fact 也會通過。→ 檢索**機械化**（hook 查 key）、miss 就硬升級。
+5. **escalation 靠自評信心不可靠**（unknown-unknowns 不觸發）。→ 觸發改**可觀察事件**（registry miss / hook fail / 高風險動作），非模型內省信心。
+
+### 7.3 KPI 修正（原提案有誤）
+- ❌ 原提「escalation-to-user 比率下降 = 進步」——**會被沉默作弊**（裝懂不問，數字好看卻更糟 = normalization of deviance）。
+- ✅ 改用 **repeat-escalation rate（同一問題是否再問第二次）** + **固定抽樣錯誤率**（問人變少且錯誤沒變多才算真進步）。
+- 追蹤 **registry 成長飽和曲線**：判斷 head-heavy（會平緩、捕捉划算）或 long-tail（線性、ROI 不來）。
+
+### 7.4 rollout 修正
+- **先建 P1（capture-first registry）再放手 cheap doer**——registry 空時 doer 無真相可查，試誤/升級最嚴重。
+- P1 前先做**小型 workload 分布量測**，確認本領域（韌體/研究疑似 long-tail）捕捉 ROI 成立，否則前提重想。
+- **過度稽核陷阱真正發生在**：approval fatigue（過度升級→使用者變橡皮圖章）+ 改善迴圈為刷指標偷放寬 SOP——守這兩處，不是守 doer（無狀態 LLM 無此心理）。
