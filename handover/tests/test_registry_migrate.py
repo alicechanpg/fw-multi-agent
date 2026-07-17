@@ -95,3 +95,22 @@ def test_triage_first_line_skips_a_leading_markdown_heading(tmp_path):
     rows = registry_migrate.triage(tmp_path)
     row = next(r for r in rows if r["file"] == "reference_d.md")
     assert row["first_line"] == "真正內容"
+
+
+def test_coverage_marks_a_source_with_a_migrated_fact_as_covered():
+    facts = [{"key": "PID:295D:0501", "source": "reference_a.md｜實機驗證"}]
+    rows = registry_migrate.coverage(["reference_a.md"], facts)
+    assert rows[0]["covered"] is True
+    assert rows[0]["keys"] == ["PID:295D:0501"]
+
+
+def test_coverage_marks_an_unmigrated_source_as_not_covered():
+    rows = registry_migrate.coverage(["reference_b.md"], [{"key": "X", "source": "reference_a.md"}])
+    assert rows[0]["covered"] is False
+    assert rows[0]["keys"] == []
+
+
+def test_render_coverage_flags_uncovered_sources():
+    out = registry_migrate.render_coverage([{"file": "reference_b.md", "covered": False, "keys": []}])
+    assert "reference_b.md" in out
+    assert "NOT COVERED" in out

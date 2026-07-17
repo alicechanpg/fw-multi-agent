@@ -75,6 +75,36 @@ def render_triage(rows):
     return "\n".join(out) + "\n"
 
 
+def coverage(source_files, facts):
+    """Map each source file to the registry keys that cite it.
+
+    memory/ is not in version control, so deletion is irreversible. This is the
+    mechanical evidence that a source file's facts survived the migration; a file
+    that is not covered must not be deleted.
+    """
+    rows = []
+    for name in source_files:
+        keys = [f.get("key") for f in facts if name in str(f.get("source", ""))]
+        rows.append({"file": name, "covered": bool(keys), "keys": keys})
+    return rows
+
+
+def render_coverage(rows):
+    """Markdown table. Uncovered sources are called out, not quietly omitted."""
+    out = [
+        "# 遷移覆蓋率對照表",
+        "",
+        "_`NOT COVERED` 的來源檔**不得刪除**——代表事實尚未進 registry。_",
+        "",
+        "| 來源檔 | 狀態 | registry keys |",
+        "|---|---|---|",
+    ]
+    for r in rows:
+        status = "covered" if r["covered"] else "**NOT COVERED**"
+        out.append(f"| {r['file']} | {status} | {', '.join(k for k in r['keys'] if k) or '—'} |")
+    return "\n".join(out) + "\n"
+
+
 if __name__ == "__main__":
     rows = triage()
     dest = pathlib.Path("D:/mybot/handover/registry/triage.md")
