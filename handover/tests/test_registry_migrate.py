@@ -1,3 +1,5 @@
+import re
+
 import registry_migrate
 
 
@@ -177,3 +179,38 @@ def test_coverage_matches_both_filenames_in_a_comma_joined_source():
     facts = [{"key": "X", "source": "reference_a.md, reference_b.md"}]
     assert registry_migrate.coverage(["reference_a.md"], facts)[0]["covered"] is True
     assert registry_migrate.coverage(["reference_b.md"], facts)[0]["covered"] is True
+
+
+def test_coverage_does_not_credit_a_fact_that_carries_no_key():
+    # A source-matching record with no key is no evidence that anything
+    # migrated, yet it reported covered=True with an empty evidence column --
+    # the status said "safe to delete" while showing nothing to back it. load()
+    # does not validate and the migration is done BY HAND, so a keyless record
+    # is the expected input, not an exotic one. Over-reporting here deletes a
+    # memory file permanently (memory/ has no version control).
+    rows = registry_migrate.coverage(["a.md"], [{"source": "a.md"}])
+    assert rows[0]["covered"] is False
+
+
+def test_coverage_credits_a_source_annotated_with_a_fullwidth_comma():
+    # The user writes Chinese and `，` is her natural separator. Failing to
+    # split on it marked a genuinely-cited file NOT COVERED. That direction is
+    # safe, but a wave of spurious NOT COVERED rows trains the reader to
+    # override the deletion gate on sight -- which is how the gate stops working.
+    rows = registry_migrate.coverage(["a.md"], [{"key": "X", "source": "a.md，實機驗證"}])
+    assert rows[0]["covered"] is True
+    assert rows[0]["keys"] == ["X"]
+
+
+def test_render_triage_escapes_a_pipe_in_the_preview():
+    # Verified against the real memory dir: reference_reactor_updater_bundle.md's
+    # preview contains `build-{reactor50|r100-v2|r100-v3}`, so its row carried 7
+    # pipes where the table structure expects 4 -- the row rendered mangled in
+    # the very document the user reads to authorise the migration.
+    out = registry_migrate.render_triage(
+        [{"file": "reference_a.md", "suggest": "fact", "first_line": "build-{r50|r100-v2}"}]
+    )
+    row = next(line for line in out.splitlines() if line.startswith("| reference_a.md |"))
+    assert r"build-{r50\|r100-v2}" in row
+    # exactly 4 unescaped separators: leading, two between cells, trailing
+    assert len(re.findall(r"(?<!\\)\|", row)) == 4
