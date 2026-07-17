@@ -128,7 +128,55 @@ def build(sessions, days):
     out += ["", "## 重複超過 2 次的動作（可能是重試/繞圈）", ""]
     out += [f"- ({n}x) `{c}`" for c, n in repeats] or ["_無_"]
 
+    out += metrics_trend(days)
+
     return "\n".join(out) + "\n", total, len(all_fail), len(all_corr)
+
+
+def _fmt(n):
+    if n is None:
+        return "—"
+    if isinstance(n, (int, float)) and n >= 1000:
+        return f"{n/1000:,.0f}k"
+    return str(n)
+
+
+def metrics_trend(days):
+    """KPI trend from metrics.jsonl (written per session by metrics.py at Stop).
+
+    A trend, not a verdict: these are diagnostic signals for where work stalls, NOT a
+    scorecard to optimise -- treating them as a target invites gaming (see spec §1.2).
+    """
+    path = AUDIT_DIR / "metrics.jsonl"
+    if not path.exists():
+        return ["", "## 效率 / 成本 趨勢 (KPI)", "", "_尚無 metrics.jsonl（下次 session 結束後產生）_"]
+    cutoff = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M")
+    rows = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            r = json.loads(line)
+        except Exception:
+            continue
+        if (r.get("date") or "") >= cutoff:
+            rows.append(r)
+    out = ["", "## 效率 / 成本 趨勢 (KPI)", "",
+           "_診斷訊號，非計分板；當成 KPI 去衝會被 game（見 spec §1.2）。"
+           "`插話` 是試誤代理指標，非確認糾正。_", "",
+           "| session | 日期 | output | cache_rd | prompts | 插話 | tools | 失敗% | out/p | 插話/p |",
+           "|---|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        out.append(
+            f"| `{str(r.get('session'))[:8]}` | {r.get('date','')} | {_fmt(r.get('out_tokens'))} | "
+            f"{_fmt(r.get('cache_read'))} | {r.get('prompts')} | {r.get('interjections')} | "
+            f"{r.get('tool_calls')} | {r.get('fail_rate')} | {_fmt(r.get('out_per_prompt'))} | "
+            f"{r.get('interj_per_prompt')} |"
+        )
+    if not rows:
+        out.append("| _窗內無資料_ |||||||||| ")
+    return out
 
 
 def main():

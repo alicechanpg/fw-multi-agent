@@ -14,6 +14,12 @@ import json
 import pathlib
 import sys
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+try:
+    import metrics  # P0 metric layer; optional -- digest must survive its absence
+except Exception:
+    metrics = None
+
 HANDOVER = pathlib.Path("D:/mybot/handover")
 AUDIT_DIR = HANDOVER / "audit"
 TERMINAL = "mybot"
@@ -137,7 +143,16 @@ def main():
     stamp = datetime.datetime.now().strftime("%Y-%m-%d-%H%M")
     out_dir = HANDOVER / "sessions" / TERMINAL
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / f"{stamp}-audit.md").write_text(render(session, events, queued), encoding="utf-8")
+
+    digest = render(session, events, queued)
+    if metrics is not None:
+        try:  # P0 metrics must never break the digest or the Stop hook
+            m = metrics.compute(data.get("transcript_path"), events, len(queued))
+            digest += "\n" + metrics.render_md(m)
+            metrics.append_record(AUDIT_DIR / "metrics.jsonl", session, m)
+        except Exception:
+            pass
+    (out_dir / f"{stamp}-audit.md").write_text(digest, encoding="utf-8")
 
     # Staleness: was latest-{terminal}.md actually touched during this session?
     latest = HANDOVER / f"latest-{TERMINAL}.md"
