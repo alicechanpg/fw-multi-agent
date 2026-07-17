@@ -126,3 +126,29 @@ def test_load_reads_one_fact_per_line(tmp_path):
         '{"key":"A","fact":"a"}\n\n{"key":"B","fact":"b"}\n', encoding="utf-8"
     )
     assert [f["key"] for f in registry.load(p)] == ["A", "B"]
+
+
+def test_lookup_volatile_beats_expired_ttl():
+    # A volatile fact must ALWAYS return its probe, never a cached value, even when
+    # its ttl says it is stale. The invariant depends on the volatile check running
+    # BEFORE the ttl check; a future refactor that reorders them must fail this test.
+    facts = [
+        valid_fact(
+            key="COM:ESP32",
+            volatile=True,
+            probe="Get-PnpDevice, match VID 303A",
+            ttl="2026-01-01",
+        )
+    ]
+    got = registry.lookup(facts, "COM:ESP32", today="2026-07-17")
+    assert got["status"] == "volatile"
+    assert "303A" in got["probe"]
+
+
+def test_lookup_ttl_equal_to_today_is_still_hit():
+    # The ttl comparison is strict (<), not (<=), so a fact whose ttl is exactly
+    # today is treated as live (good through the end of today), not expired.
+    # This boundary must not change to <= without breaking real workflows.
+    facts = [valid_fact(ttl="2026-07-17")]
+    got = registry.lookup(facts, "PID:295D:0501", today="2026-07-17")
+    assert got["status"] == "hit"
