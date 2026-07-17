@@ -1,0 +1,3 @@
+{"ts": "2026-07-17T12:15:28", "event": "UserPromptSubmit", "cwd": "D:\\mybot", "prompt": "/audit-review"}
+{"ts": "2026-07-17T12:15:36", "event": "PostToolUse", "cwd": "D:\\mybot", "tool": "Bash", "input": {"command": "python D:/mybot/handover/scripts/audit-report.py 7 2>&1 | tail -5", "description": "Run audit aggregation script for last 7 days"}, "ok": true}
+{"ts": "2026-07-17T12:15:45", "event": "PostToolUse", "cwd": "D:\\mybot", "tool": "Bash", "input": {"command": "ls -t D:/mybot/handover/sessions/mybot/*-audit.md 2>/dev/null | head -5", "description": "List recent audit session digests"}, "ok": true}
