@@ -95,3 +95,37 @@ def lookup(facts, key, today=None):
             return {"status": "expired", "fact": f}
         return {"status": "hit", "fact": f}
     return {"status": "miss"}
+
+
+def find_conflict(facts, new_fact):
+    """Return an existing record that contradicts new_fact, else None.
+
+    Same key AND same scope but a different assertion is a conflict. Scope is part
+    of identity on purpose: STM32H7R3 and H750 hold opposite facts under the same
+    key and must not be treated as contradicting each other.
+
+    The capture flow must stop and ask rather than overwrite -- a silent overwrite
+    poisons every future lookup of that key.
+    """
+    for f in facts:
+        same_key = f.get("key") == new_fact.get("key")
+        same_scope = f.get("scope") == new_fact.get("scope")
+        if same_key and same_scope:
+            if str(f.get("fact")).strip() != str(new_fact.get("fact")).strip():
+                return f
+    return None
+
+
+def append(fact, path=REGISTRY):
+    """Validate, then append one fact. Raises ValueError if the record is invalid.
+
+    Validation is not optional here: an unvalidated write is exactly how a fact
+    without provenance, or a cached volatile value, gets into the registry.
+    """
+    errs = validate(fact)
+    if errs:
+        raise ValueError("; ".join(errs))
+    p = pathlib.Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with open(p, "a", encoding="utf-8") as fh:
+        fh.write(json.dumps(fact, ensure_ascii=False) + "\n")

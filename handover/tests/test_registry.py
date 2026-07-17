@@ -152,3 +152,36 @@ def test_lookup_ttl_equal_to_today_is_still_hit():
     facts = [valid_fact(ttl="2026-07-17")]
     got = registry.lookup(facts, "PID:295D:0501", today="2026-07-17")
     assert got["status"] == "hit"
+
+
+def test_find_conflict_flags_a_contradicting_entry():
+    existing = [valid_fact()]
+    incoming = valid_fact(fact="295D:0501 is the MCU")
+    assert registry.find_conflict(existing, incoming) is not None
+
+
+def test_find_conflict_ignores_the_same_assertion():
+    assert registry.find_conflict([valid_fact()], valid_fact()) is None
+
+
+def test_find_conflict_does_not_fire_across_different_scopes():
+    # STM32H7R3 and H750 are deliberately isolated: the same key in a different
+    # scope is a different fact, not a contradiction
+    existing = [valid_fact(key="CHIP:FLASH", scope="STM32H7R3", fact="has no internal flash")]
+    incoming = valid_fact(key="CHIP:FLASH", scope="STM32H750", fact="has internal flash")
+    assert registry.find_conflict(existing, incoming) is None
+
+
+def test_append_writes_one_line_and_is_readable(tmp_path):
+    p = tmp_path / "facts.jsonl"
+    registry.append(valid_fact(), path=p)
+    assert [f["key"] for f in registry.load(p)] == ["PID:295D:0501"]
+
+
+def test_append_refuses_an_invalid_fact(tmp_path):
+    import pytest
+
+    p = tmp_path / "facts.jsonl"
+    with pytest.raises(ValueError):
+        registry.append(valid_fact(confidence="probably"), path=p)
+    assert registry.load(p) == []
