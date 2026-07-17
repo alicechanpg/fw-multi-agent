@@ -17,6 +17,7 @@
 - `confidence` 只允許：`verified` / `reported` / `assumed`
 - `volatile: true` 的事實**必須**帶 `probe`，且查找時**不得回傳快取值**
 - `ttl` 為 `null`（長青）或 `YYYY-MM-DD`；已過期視同 miss
+- **一筆事實的識別碼是 `(key, scope)` 而非 `key` 單獨**：任何「選定/比對某筆事實」的函式都必須同時使用兩者——H7R3 與 H750 刻意在同一個 `key` 下持有相反事實，只看 `key` 會讓不同 task 對「這是不是同一筆」給出矛盾答案
 - **console 是 cp950**：任何腳本**不得**把中文印到 stdout；報表一律寫檔，用 Read 讀
 - **`C:\Users\alice\.claude\projects\D--mybot\memory\` 不在 git 版控**——本計畫**不刪除任何 memory 檔**；刪除須待分流清單經使用者確認後另行執行
 - Bash 中多行字串用 `printf`，**不得**使用 PowerShell heredoc `@'...'@`
@@ -220,7 +221,7 @@ git commit -m "$(printf 'feat(registry): fact schema validation\n\nProvenance an
 
 **Interfaces:**
 - Consumes: `validate`, `REGISTRY`（Task 1）
-- Produces: `load(path=REGISTRY) -> list[dict]`；`lookup(facts: list[dict], key: str, today: str | None = None) -> dict`，回傳 `{"status": "hit"|"miss"|"expired"|"volatile", ...}`
+- Produces: `load(path=REGISTRY) -> list[dict]`；`lookup(facts: list[dict], key: str, scope: str | None = None, today: str | None = None) -> dict`，回傳 `{"status": "hit"|"miss"|"expired"|"volatile"|"ambiguous", ...}`
 
 - [ ] **Step 1: 寫失敗的測試**
 
@@ -294,26 +295,37 @@ def load(path=REGISTRY):
     return out
 
 
-def lookup(facts, key, today=None):
-    """Deterministic key lookup -- no fuzzy matching, no guessing.
+def lookup(facts, key, scope=None, today=None):
+    """Deterministic (key, scope) lookup -- no fuzzy matching, no guessing.
+
+    A fact's identity is (key, scope), not key alone: H7R3 and H750 deliberately
+    hold opposite facts under the same key, so a key match that spans several
+    scopes must not be resolved by picking one -- that is exactly the bug this
+    function exists to prevent.
 
     status:
-      hit      -- usable fact
-      miss     -- no entry; the caller MUST escalate, never improvise
-      expired  -- entry exists but is past its ttl, so it is not usable
-      volatile -- must be probed at runtime; the stored value is not truth
+      hit       -- usable fact
+      miss      -- no entry; the caller MUST escalate, never improvise
+      expired   -- past its ttl, not usable
+      volatile  -- must be probed at runtime; the stored value is not truth
+      ambiguous -- key matches several scopes; caller must supply scope
     """
     today = today or datetime.date.today().isoformat()
-    for f in facts:
-        if f.get("key") != key:
-            continue
-        if f.get("volatile"):
-            return {"status": "volatile", "probe": f.get("probe"), "fact": f}
-        ttl = f.get("ttl")
-        if ttl and str(ttl) < today:
-            return {"status": "expired", "fact": f}
-        return {"status": "hit", "fact": f}
-    return {"status": "miss"}
+    matches = [
+        f for f in facts
+        if f.get("key") == key and (scope is None or f.get("scope") == scope)
+    ]
+    if not matches:
+        return {"status": "miss"}
+    if len(matches) > 1:
+        return {"status": "ambiguous", "scopes": [f.get("scope") for f in matches]}
+    f = matches[0]
+    if f.get("volatile"):
+        return {"status": "volatile", "probe": f.get("probe"), "fact": f}
+    ttl = f.get("ttl")
+    if ttl and str(ttl) < today:
+        return {"status": "expired", "fact": f}
+    return {"status": "hit", "fact": f}
 ```
 
 - [ ] **Step 4: 跑測試確認通過**
@@ -703,3 +715,16 @@ git commit -m "$(printf 'feat(registry): migration coverage report\n\nMechanical
 5. 更新 `MEMORY.md` 指向 registry。
 
 > 步驟 2–5 涉及不可回復的刪除，須經使用者逐項確認，**不由本計畫的 task 自動完成**。
+
+---
+
+## 執行紀錄：經核准的偏離
+
+本計畫已執行完畢（Task 1–5，最終 **56 個測試通過**——計畫中逐 task 標注的 8 / 15 / 20 / 6 / 29 已被此數字取代）。執行過程中，計畫自身的參考程式碼發現 **4 處缺陷**：每一處都通過了計畫自己寫的測試，卻在真實資料上失敗。以下 4 處修正皆已在執行當下經使用者核准：
+
+1. **Task 1 `_is_date`** —— 計畫用裸的 `datetime.date.fromisoformat`，在 Python 3.11+ 上會接受 ISO basic 格式（`20260717`）與 week-date 格式（`2026-W29-5`）。由於 `lookup()` 把 ttl 當字串比較，`ttl="20260101"` 會同時「驗證通過」且「比較結果為永不過期」。已改為先用 `re.fullmatch` 強制 `YYYY-MM-DD` 字面格式，再檢查日期是否合法。
+2. **Task 4 `triage()`** —— 計畫用一組前綴 tuple 跳過 frontmatter，但真實 memory 檔案的 frontmatter 有巢狀/縮排，導致全部 67 列都預覽到 frontmatter 的 key，沒有一列顯示到內容。已改為用 frontmatter 區塊定界。
+3. **Task 5 `coverage()`** —— 計畫用未錨定的子字串比對（`name in str(source)`），導致 `a.md` 被算進其實來自 `extra.md` 的事實，會誤判為可以刪除一個事實其實從未遷移過去的來源檔。已加固為先做精確比對，再改為只計算 `.md` 形狀 token 的最前導連續段。
+4. **Task 2 `lookup()`** —— 前述的識別碼模型缺陷。只有最終跨 task 整體 review 才發現，因為它藏在 Task 2 與 Task 3 的縫隙裡。
+
+**流程教訓**：這 4 處都通過了計畫自己的 fixture，因為 fixture 與參考程式碼出自同一人之手，盲點也共享。全部 4 處都是靠拿真實資料實測（真的 memory 目錄、真的 frontmatter、真的檔名）才抓到的。

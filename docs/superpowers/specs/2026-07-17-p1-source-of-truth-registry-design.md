@@ -40,7 +40,7 @@
 | 欄位 | 用途 | 對應稽核要求 |
 |---|---|---|
 | `key` | 確定性查找鍵（如 `PID:295D:0501`） | 檢索機械化——笨 model 不用「選」fact；miss → 硬升級 |
-| `scope` | 適用範圍（產品/晶片） | 防 **H7R3/H750 跨情境誤用**（既有教訓） |
+| `scope` | **事實識別碼的一部分**：`(key, scope)` 兩者合起來才識別一筆事實，不只是描述性標籤 | 防 **H7R3/H750 跨情境誤用**（既有教訓） |
 | `fact` | 單一原子陳述 | 可並排比對 |
 | `source` | provenance | 可回溯，防毒化 |
 | `owner` | 負責人 | 稽核要求：事實要有主 |
@@ -129,6 +129,6 @@ opus 自驗（比對現有 registry、檢查 scope 是否足夠、confidence 是
 1. `facts.jsonl` 存在且每行符合 schema（parser 驗證通過）。
 2. 種子遷移完成：對照表顯示**來源檔每條事實皆有對應 key**，無遺漏。
 3. COM 類事實以 `volatile:true` + probe 存在，registry 內**不存在** COM 號常數。
-4. 確定性查找可用：給 key 回傳事實；miss 回傳明確 miss（不猜）。
+4. 確定性查找可用：查找以 `(key, scope)` 為準；`key` 命中多個 `scope` 時回傳 `ambiguous`（不猜哪一筆），不提供 `scope` 且只命中一筆才回傳事實；miss 回傳明確 miss（不猜）。
 5. 原 `reference_*.md` 已備份且刪除，`MEMORY.md` 指向 registry。
 6. `scope` 欄位能區隔 H7R3 / H750（抽驗不會跨情境誤用）。
