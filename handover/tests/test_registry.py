@@ -155,9 +155,14 @@ def test_lookup_ttl_equal_to_today_is_still_hit():
 
 
 def test_find_conflict_flags_a_contradicting_entry():
+    # The contract is `-> dict | None`: callers show the user the conflicting
+    # record, so asserting merely `is not None` would pass for True/1/"yes" and
+    # leave a caller crashing on a non-dict. Assert the actual record comes back.
     existing = [valid_fact()]
     incoming = valid_fact(fact="295D:0501 is the MCU")
-    assert registry.find_conflict(existing, incoming) is not None
+    got = registry.find_conflict(existing, incoming)
+    assert got["fact"] == existing[0]["fact"]
+    assert got["key"] == existing[0]["key"]
 
 
 def test_find_conflict_ignores_the_same_assertion():
@@ -185,3 +190,87 @@ def test_append_refuses_an_invalid_fact(tmp_path):
     with pytest.raises(ValueError):
         registry.append(valid_fact(confidence="probably"), path=p)
     assert registry.load(p) == []
+
+
+def chip_facts():
+    # The canonical isolation case: the SAME key holds OPPOSITE facts in each
+    # scope, and find_conflict() deliberately lets both coexist in the file.
+    return [
+        valid_fact(key="CHIP:FLASH", scope="STM32H7R3", fact="has NO internal flash"),
+        valid_fact(key="CHIP:FLASH", scope="STM32H750", fact="has internal flash"),
+    ]
+
+
+def test_lookup_without_scope_is_ambiguous_when_a_key_spans_scopes():
+    # A key alone does not identify a fact once two scopes hold it. Returning the
+    # first line in the file would pass off whichever record happened to be
+    # written first as verified truth -- exactly the H7R3/H750 cross-context
+    # misuse the scope field exists to prevent (spec §9.6). Say so instead.
+    got = registry.lookup(chip_facts(), "CHIP:FLASH", today="2026-07-17")
+    assert got["status"] == "ambiguous"
+    assert sorted(got["scopes"]) == sorted(["STM32H7R3", "STM32H750"])
+    assert "fact" not in got  # must not hand back a guessed record
+
+
+def test_lookup_with_scope_serves_the_h750_fact():
+    got = registry.lookup(chip_facts(), "CHIP:FLASH", scope="STM32H750", today="2026-07-17")
+    assert got["status"] == "hit"
+    assert got["fact"]["fact"] == "has internal flash"
+
+
+def test_lookup_with_scope_serves_the_h7r3_fact():
+    # Proves neither record is unreachable: the same key in the other scope must
+    # return the OPPOSITE fact, not whichever one came first in the list.
+    got = registry.lookup(chip_facts(), "CHIP:FLASH", scope="STM32H7R3", today="2026-07-17")
+    assert got["status"] == "hit"
+    assert got["fact"]["fact"] == "has NO internal flash"
+
+
+def test_lookup_with_a_scope_that_matches_nothing_is_a_miss():
+    got = registry.lookup(chip_facts(), "CHIP:FLASH", scope="STM32F4", today="2026-07-17")
+    assert got["status"] == "miss"
+
+
+def test_lookup_with_scope_still_returns_probe_for_a_volatile_fact():
+    # Adding scope filtering must not disturb the volatile-before-ttl ordering.
+    facts = [
+        valid_fact(
+            key="COM:ESP32",
+            scope="ESP32",
+            volatile=True,
+            probe="Get-PnpDevice, match VID 303A",
+            ttl="2026-01-01",
+        )
+    ]
+    got = registry.lookup(facts, "COM:ESP32", scope="ESP32", today="2026-07-17")
+    assert got["status"] == "volatile"
+    assert "303A" in got["probe"]
+
+
+def test_find_conflict_sees_through_untrimmed_whitespace_in_a_key():
+    # `fact` was compared with .strip() but key/scope were compared raw, so a
+    # hand-migrated record with a trailing space in its key read as a DIFFERENT
+    # key. The contradiction slipped past the gate, both records were appended,
+    # and lookup then had two opposite facts to choose between.
+    existing = [valid_fact(key="CHIP:FLASH ", scope="STM32H750", fact="has internal flash")]
+    incoming = valid_fact(key="CHIP:FLASH", scope="STM32H750", fact="has NO internal flash")
+    got = registry.find_conflict(existing, incoming)
+    assert got is not None
+    assert got["fact"] == "has internal flash"
+
+
+def test_append_stores_the_key_normalized(tmp_path):
+    # Normalizing on write keeps whitespace variants from ever becoming two
+    # distinct identities in the file.
+    p = tmp_path / "facts.jsonl"
+    registry.append(valid_fact(key="K ", scope=" Reactor "), path=p)
+    stored = registry.load(p)[0]
+    assert stored["key"] == "K"
+    assert stored["scope"] == "Reactor"
+
+
+def test_append_does_not_mutate_the_callers_dict(tmp_path):
+    p = tmp_path / "facts.jsonl"
+    caller = valid_fact(key="K ")
+    registry.append(caller, path=p)
+    assert caller["key"] == "K "  # the caller's object is theirs, not ours to edit

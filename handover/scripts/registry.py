@@ -75,26 +75,41 @@ def load(path=REGISTRY):
     return out
 
 
-def lookup(facts, key, today=None):
-    """Deterministic key lookup -- no fuzzy matching, no guessing.
+def lookup(facts, key, scope=None, today=None):
+    """Deterministic lookup -- no fuzzy matching, no guessing.
+
+    A fact's identity is (key, scope): H7R3 and H750 hold opposite facts under the
+    same key, so a key alone does not identify one. Omitting scope is only safe
+    when the key is unique; if it is not, the caller is told so rather than served
+    an arbitrary one -- silently picking whichever line came first in the file is
+    exactly how the wrong chip's fact gets passed off as verified.
 
     status:
-      hit      -- usable fact
-      miss     -- no entry; the caller MUST escalate, never improvise
-      expired  -- entry exists but is past its ttl, so it is not usable
-      volatile -- must be probed at runtime; the stored value is not truth
+      hit       -- usable fact
+      miss      -- no entry; the caller MUST escalate, never improvise
+      expired   -- past its ttl, not usable
+      volatile  -- must be probed at runtime; the stored value is not truth
+      ambiguous -- key matches several scopes; caller must supply scope
     """
     today = today or datetime.date.today().isoformat()
-    for f in facts:
-        if f.get("key") != key:
-            continue
-        if f.get("volatile"):
-            return {"status": "volatile", "probe": f.get("probe"), "fact": f}
-        ttl = f.get("ttl")
-        if ttl and str(ttl) < today:
-            return {"status": "expired", "fact": f}
-        return {"status": "hit", "fact": f}
-    return {"status": "miss"}
+    matches = [
+        f for f in facts
+        if f.get("key") == key and (scope is None or f.get("scope") == scope)
+    ]
+    if not matches:
+        return {"status": "miss"}
+    if len(matches) > 1:
+        return {"status": "ambiguous", "scopes": [f.get("scope") for f in matches]}
+
+    f = matches[0]
+    # volatile is checked BEFORE ttl on purpose: a volatile value must return its
+    # probe even when stale, never a cached value. Do not reorder.
+    if f.get("volatile"):
+        return {"status": "volatile", "probe": f.get("probe"), "fact": f}
+    ttl = f.get("ttl")
+    if ttl and str(ttl) < today:
+        return {"status": "expired", "fact": f}
+    return {"status": "hit", "fact": f}
 
 
 def find_conflict(facts, new_fact):
@@ -106,10 +121,18 @@ def find_conflict(facts, new_fact):
 
     The capture flow must stop and ask rather than overwrite -- a silent overwrite
     poisons every future lookup of that key.
+
+    Identity fields are compared trimmed, matching how append() normalizes them on
+    write. Comparing `fact` trimmed but `key` raw let 'CHIP:FLASH ' and 'CHIP:FLASH'
+    read as different keys, so a real contradiction slipped past this gate. This is
+    called on facts that have NOT been through append() yet -- that is its purpose --
+    so it cannot rely on the write-side normalization alone.
     """
+    new_key = str(new_fact.get("key")).strip()
+    new_scope = str(new_fact.get("scope")).strip()
     for f in facts:
-        same_key = f.get("key") == new_fact.get("key")
-        same_scope = f.get("scope") == new_fact.get("scope")
+        same_key = str(f.get("key")).strip() == new_key
+        same_scope = str(f.get("scope")).strip() == new_scope
         if same_key and same_scope:
             if str(f.get("fact")).strip() != str(new_fact.get("fact")).strip():
                 return f
@@ -121,7 +144,17 @@ def append(fact, path=REGISTRY):
 
     Validation is not optional here: an unvalidated write is exactly how a fact
     without provenance, or a cached volatile value, gets into the registry.
+
+    The identity fields (key, scope) are normalized before validation so that
+    whitespace variants can never become two distinct identities in the file --
+    which would hide a contradiction from find_conflict() and leave lookup() with
+    two opposite facts to choose between. The caller's dict is copied, not mutated.
     """
+    if isinstance(fact, dict):
+        fact = dict(fact)
+        for field in ("key", "scope"):
+            if isinstance(fact.get(field), str):
+                fact[field] = fact[field].strip()
     errs = validate(fact)
     if errs:
         raise ValueError("; ".join(errs))
