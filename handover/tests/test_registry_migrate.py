@@ -142,3 +142,38 @@ def test_coverage_still_matches_exact_filename_with_annotation_suffix():
     rows = registry_migrate.coverage(["reference_a.md"], facts)
     assert rows[0]["covered"] is True
     assert rows[0]["keys"] == ["PID:X"]
+
+
+def test_coverage_does_not_false_positive_on_a_filename_named_in_prose():
+    # Residual false positive from 446924b: with no bar separator, a source
+    # written as free prose ("reference_a.md see also dfu_flash.md") makes
+    # every whitespace-bounded token in the head match exactly, so a file
+    # merely NAMED in passing gets credited as covered. That authorises
+    # deleting dfu_flash.md even though none of its facts migrated -- the
+    # dangerous direction, since memory/ has no version control. Only the
+    # leading run of filename tokens may count; "see"/"also" are prose and
+    # end the citation run before dfu_flash.md is ever reached.
+    rows = registry_migrate.coverage(
+        ["dfu_flash.md"], [{"key": "X", "source": "reference_a.md see also dfu_flash.md"}]
+    )
+    assert rows[0]["covered"] is False
+    assert rows[0]["keys"] == []
+
+
+def test_coverage_still_covers_the_real_citation_in_a_prose_source():
+    # Same source as above, but checking the file that's actually the leading
+    # (real) citation -- proves the fix doesn't overcorrect into refusing to
+    # credit the legitimate source that started the field.
+    rows = registry_migrate.coverage(
+        ["reference_a.md"], [{"key": "X", "source": "reference_a.md see also dfu_flash.md"}]
+    )
+    assert rows[0]["covered"] is True
+    assert rows[0]["keys"] == ["X"]
+
+
+def test_coverage_matches_both_filenames_in_a_comma_joined_source():
+    # Pins the legitimate multi-source case: a source citing two real
+    # filenames back-to-back (no prose between them) must still cover both.
+    facts = [{"key": "X", "source": "reference_a.md, reference_b.md"}]
+    assert registry_migrate.coverage(["reference_a.md"], facts)[0]["covered"] is True
+    assert registry_migrate.coverage(["reference_b.md"], facts)[0]["covered"] is True

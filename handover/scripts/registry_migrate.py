@@ -78,14 +78,22 @@ def render_triage(rows):
 def _cited_files(source):
     """Filenames a source field cites, for exact matching.
 
-    Only the part before the annotation separator counts: what follows is prose,
-    and a filename merely mentioned in prose did not necessarily supply the fact.
-    Matching must be exact -- substring matching would mark a.md as covered by a
-    fact sourced from extra.md, authorising the deletion of a file whose facts
-    never migrated.
+    Only the leading run of filename tokens counts. Everything from the first
+    non-filename word onward is prose, and a filename merely mentioned in prose
+    did not supply the fact -- crediting it would authorise deleting a file whose
+    facts never migrated. Erring toward fewer citations only leaves a file in
+    place; erring toward more loses it permanently.
     """
     head = re.split(r"[｜|]", str(source), maxsplit=1)[0]
-    return {tok.strip() for tok in re.split(r"[,;、\s]+", head) if tok.strip()}
+    cited = set()
+    for tok in re.split(r"[,;、\s]+", head):
+        tok = tok.strip()
+        if not tok:
+            continue
+        if not tok.endswith(".md"):
+            break
+        cited.add(tok)
+    return cited
 
 
 def coverage(source_files, facts):
