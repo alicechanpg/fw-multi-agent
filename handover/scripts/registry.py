@@ -60,3 +60,38 @@ def validate(fact):
     if fact["ttl"] is not None and not _is_date(fact["ttl"]):
         errs.append("ttl must be YYYY-MM-DD or null")
     return errs
+
+
+def load(path=REGISTRY):
+    """Read every fact record. A missing file is an empty registry, not an error."""
+    p = pathlib.Path(path)
+    if not p.exists():
+        return []
+    out = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line:
+            out.append(json.loads(line))
+    return out
+
+
+def lookup(facts, key, today=None):
+    """Deterministic key lookup -- no fuzzy matching, no guessing.
+
+    status:
+      hit      -- usable fact
+      miss     -- no entry; the caller MUST escalate, never improvise
+      expired  -- entry exists but is past its ttl, so it is not usable
+      volatile -- must be probed at runtime; the stored value is not truth
+    """
+    today = today or datetime.date.today().isoformat()
+    for f in facts:
+        if f.get("key") != key:
+            continue
+        if f.get("volatile"):
+            return {"status": "volatile", "probe": f.get("probe"), "fact": f}
+        ttl = f.get("ttl")
+        if ttl and str(ttl) < today:
+            return {"status": "expired", "fact": f}
+        return {"status": "hit", "fact": f}
+    return {"status": "miss"}

@@ -82,3 +82,47 @@ def test_validate_rejects_impossible_date():
     # Even if the format is YYYY-MM-DD, it must be a real calendar date.
     errs = registry.validate(valid_fact(captured="2026-13-45"))
     assert any("captured" in e for e in errs)
+
+
+def test_lookup_returns_hit_for_a_live_fact():
+    facts = [valid_fact()]
+    got = registry.lookup(facts, "PID:295D:0501", today="2026-07-17")
+    assert got["status"] == "hit"
+    assert got["fact"]["scope"] == "Reactor"
+
+
+def test_lookup_reports_miss_instead_of_guessing():
+    # a miss must be explicit so the caller escalates rather than improvising
+    got = registry.lookup([valid_fact()], "PID:295D:9999", today="2026-07-17")
+    assert got["status"] == "miss"
+
+
+def test_lookup_treats_expired_ttl_as_unusable():
+    facts = [valid_fact(ttl="2026-01-01")]
+    got = registry.lookup(facts, "PID:295D:0501", today="2026-07-17")
+    assert got["status"] == "expired"
+
+
+def test_lookup_honours_ttl_that_has_not_passed():
+    facts = [valid_fact(ttl="2026-12-31")]
+    got = registry.lookup(facts, "PID:295D:0501", today="2026-07-17")
+    assert got["status"] == "hit"
+
+
+def test_lookup_of_volatile_fact_returns_probe_not_a_value():
+    facts = [valid_fact(key="COM:ESP32", volatile=True, probe="Get-PnpDevice, match VID 303A")]
+    got = registry.lookup(facts, "COM:ESP32", today="2026-07-17")
+    assert got["status"] == "volatile"
+    assert "303A" in got["probe"]
+
+
+def test_load_of_missing_file_is_an_empty_registry(tmp_path):
+    assert registry.load(tmp_path / "nope.jsonl") == []
+
+
+def test_load_reads_one_fact_per_line(tmp_path):
+    p = tmp_path / "facts.jsonl"
+    p.write_text(
+        '{"key":"A","fact":"a"}\n\n{"key":"B","fact":"b"}\n', encoding="utf-8"
+    )
+    assert [f["key"] for f in registry.load(p)] == ["A", "B"]
