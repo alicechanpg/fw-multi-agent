@@ -114,3 +114,31 @@ def test_render_coverage_flags_uncovered_sources():
     out = registry_migrate.render_coverage([{"file": "reference_b.md", "covered": False, "keys": []}])
     assert "reference_b.md" in out
     assert "NOT COVERED" in out
+
+
+def test_coverage_does_not_false_positive_on_substring_match():
+    # Proven false positive: "a.md" is a substring of "extra.md", so naive
+    # `name in source` marks a.md covered by a fact that never mentioned it.
+    # Over-reporting coverage here authorises deleting a.md's facts forever
+    # (memory/ has no version control) -- must be NOT covered.
+    rows = registry_migrate.coverage(["a.md"], [{"key": "X", "source": "extra.md"}])
+    assert rows[0]["covered"] is False
+    assert rows[0]["keys"] == []
+
+
+def test_coverage_does_not_false_positive_when_name_is_a_filename_suffix():
+    # "dfu_flash.md" is a suffix of "reference_dfu_flash.md" -- same substring
+    # hazard as above, just via a realistic filename collision instead of a
+    # contrived one. Must still require exact equality.
+    rows = registry_migrate.coverage(["dfu_flash.md"], [{"key": "X", "source": "reference_dfu_flash.md"}])
+    assert rows[0]["covered"] is False
+    assert rows[0]["keys"] == []
+
+
+def test_coverage_still_matches_exact_filename_with_annotation_suffix():
+    # Pins the normal path: a source field carrying a "｜annotation" suffix
+    # must still exactly match the filename before the separator.
+    facts = [{"key": "PID:X", "source": "reference_a.md｜實機驗證"}]
+    rows = registry_migrate.coverage(["reference_a.md"], facts)
+    assert rows[0]["covered"] is True
+    assert rows[0]["keys"] == ["PID:X"]

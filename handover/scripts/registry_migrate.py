@@ -75,6 +75,19 @@ def render_triage(rows):
     return "\n".join(out) + "\n"
 
 
+def _cited_files(source):
+    """Filenames a source field cites, for exact matching.
+
+    Only the part before the annotation separator counts: what follows is prose,
+    and a filename merely mentioned in prose did not necessarily supply the fact.
+    Matching must be exact -- substring matching would mark a.md as covered by a
+    fact sourced from extra.md, authorising the deletion of a file whose facts
+    never migrated.
+    """
+    head = re.split(r"[｜|]", str(source), maxsplit=1)[0]
+    return {tok.strip() for tok in re.split(r"[,;、\s]+", head) if tok.strip()}
+
+
 def coverage(source_files, facts):
     """Map each source file to the registry keys that cite it.
 
@@ -84,7 +97,7 @@ def coverage(source_files, facts):
     """
     rows = []
     for name in source_files:
-        keys = [f.get("key") for f in facts if name in str(f.get("source", ""))]
+        keys = [f.get("key") for f in facts if name in _cited_files(f.get("source", ""))]
         rows.append({"file": name, "covered": bool(keys), "keys": keys})
     return rows
 
