@@ -55,8 +55,11 @@ def search(facts, terms):
     terms = [t.lower() for t in terms if t.strip()]
     scored = []
     for f in facts:
-        hay = f"{f.get('key','')} {f.get('scope','')} {f.get('fact','')}".lower()
-        score = sum(1 for t in terms if t in hay)
+        # key+scope identify WHAT the fact is about, so a term matching there is a
+        # stronger relevance signal than the same term buried in the fact body.
+        ident = f"{f.get('key','')} {f.get('scope','')}".lower()
+        body = str(f.get('fact', '')).lower()
+        score = sum(2 for t in terms if t in ident) + sum(1 for t in terms if t in body)
         if score:
             scored.append((score, f))
     scored.sort(key=lambda sf: (-sf[0], sf[1].get("key", "")))
