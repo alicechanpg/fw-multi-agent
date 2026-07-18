@@ -1,2 +1,0 @@
-{"ts": "2026-07-16T16:17:09", "event": "UserPromptSubmit", "cwd": "D:/mybot", "prompt": "LIVE cannot be detected by its audio 請找root cause 找到以後修掉"}
-{"ts": "2026-07-16T16:17:09", "event": "PostToolUse", "cwd": null, "tool": "Bash", "input": {"command": "git commit -m 修正", "description": "commit 中文"}, "ok": true}
