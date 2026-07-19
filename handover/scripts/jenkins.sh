@@ -34,7 +34,7 @@ _require_token() {
   [ -r "$JENKINS_TOKEN_FILE" ] || die "token file not readable: $JENKINS_TOKEN_FILE (set JENKINS_TOKEN_FILE)"
 }
 _userpass() { printf '%s:%s' "$JENKINS_USER" "$(tr -d '[:space:]' < "$JENKINS_TOKEN_FILE")"; }
-_get() { _require_token; curl -sS --connect-timeout 10 --max-time 120 -u "$(_userpass)" "$@"; }
+_get() { _require_token; curl -sS -g --connect-timeout 10 --max-time 120 -u "$(_userpass)" "$@"; }  # -g: Jenkins ?tree=jobs[name] has [] which curl would treat as URL glob
 
 cmd="${1:-help}"; [ $# -gt 0 ] && shift || true
 case "$cmd" in
