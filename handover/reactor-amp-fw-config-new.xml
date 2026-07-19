@@ -1,0 +1,242 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;b&gt;Reactor Firmware Build Job&lt;/b&gt;&#xd;
+&lt;p&gt;This build job uses STM32CubeIDE in headless mode to build the firmware&lt;/p&gt;</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>90</daysToKeep>
+        <numToKeep>-1</numToKeep>
+        <artifactDaysToKeep>14</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.13">
+      <gitLabConnection></gitLabConnection>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <hudson.plugins.copyartifact.CopyArtifactPermissionProperty plugin="copyartifact@1.42.1">
+      <projectNameList>
+        <string>REACTOR_FW_UPDATER_OSX</string>
+        <string>REACTOR_FW_UPDATER_WIN</string>
+      </projectNameList>
+    </hudson.plugins.copyartifact.CopyArtifactPermissionProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BRANCH</name>
+          <description>Select branch to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>develop</string>
+              <string>feature/pvd-detector</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>DEVICE_NAME</name>
+          <description>Select the target device</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Reactor 100</string>
+              <string>Reactor 50</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>USER_RUNNING_MODE</name>
+          <description>Select USER_CONFIG_RUNNING_MODE
+</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>RUNNING_MODE_APP</string>
+              <string>RUNNING_MODE_APP_DEBUG</string>
+              <string>RUNNING_MODE_TEST_DEBUG</string>
+              <string>RUNNING_MODE_BLOCK_DEBUG</string>
+              <string>RUNNING_MODE_FACTORY_TEST_DEBUG</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.12.1">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>ssh://git@git.positivegrid.com:8022/firmware/reactor-fw.git</url>
+        <credentialsId>10283fbf-bac9-4a42-b7b2-111772629ee4</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/${BRANCH}</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <gitTool>Win</gitTool>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.CleanBeforeCheckout/>
+      <hudson.plugins.git.extensions.impl.SubmoduleOption>
+        <disableSubmodules>true</disableSubmodules>
+        <recursiveSubmodules>false</recursiveSubmodules>
+        <trackingSubmodules>false</trackingSubmodules>
+        <reference></reference>
+        <parentCredentials>false</parentCredentials>
+      </hudson.plugins.git.extensions.impl.SubmoduleOption>
+    </extensions>
+  </scm>
+  <assignedNode>QA-Win10-BM-VS2013-Test</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>REM ================================= Fix Submodule URLs (FWP-730) =================================&#xd;
+REM .gitmodules points to GitHub but Jenkins agent has no GitHub SSH key.&#xd;
+REM Override URLs to use GitLab mirror so submodule update works.&#xd;
+git config submodule.Import/MsgPack.url &quot;ssh://git@git.positivegrid.com:8022/fw-lib/pg-msgpack.git&quot;&#xd;
+git config submodule.Import/HardwareComm.url &quot;ssh://git@git.positivegrid.com:8022/fw-lib/pg-hardware-comm.git&quot;&#xd;
+git config &quot;submodule.Appli/Source/Libraries/PGSysEx.url&quot; &quot;ssh://git@git.positivegrid.com:8022/riff/libpgsysex.git&quot;&#xd;
+git submodule sync&#xd;
+git submodule update --init&#xd;
+if %ERRORLEVEL% NEQ 0 (&#xd;
+    echo ERROR: Submodule update failed!&#xd;
+    exit /b 1&#xd;
+)&#xd;
+echo Submodule update OK&#xd;
+REM =============================================================================&#xd;
+</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>REM ================================= Patch version.h =================================&#xd;
+powershell -Command &quot;(Select-String -Path .\Appli\Source\Applications\version.h -Pattern MAJOR_VERSION | ForEach-Object Line) -replace &apos;[^0-9]&apos;, &apos;&apos; | Out-File majorver.tmp -Encoding ASCII&quot;&#xd;
+powershell -Command &quot;(Select-String -Path .\Appli\Source\Applications\version.h -Pattern MINOR_VERSION | ForEach-Object Line) -replace &apos;[^0-9]&apos;, &apos;&apos; | Out-File minorver.tmp -Encoding ASCII&quot;&#xd;
+set /p FW_MAJOR_VER=&lt;majorver.tmp&#xd;
+set /p FW_MINOR_VER=&lt;minorver.tmp&#xd;
+&#xd;
+git rev-list %GIT_COMMIT% --count &gt; gitcount.tmp&#xd;
+set /p COMMIT=&lt;gitcount.tmp&#xd;
+&#xd;
+set /a GIT_COUNT=%COMMIT%&#xd;
+set /a BUILD_NUM1=%COMMIT% / 256&#xd;
+set /a BUILD_NUM2=%COMMIT% %% 256&#xd;
+set BIN_VERSION=%FW_MAJOR_VER%.%FW_MINOR_VER%.%BUILD_NUM1%.%BUILD_NUM2%&#xd;
+echo BIN_VERSION=%BIN_VERSION% &gt;&gt; inject.properties&#xd;
+&#xd;
+cd %WORKSPACE%\Appli\Source\Applications&#xd;
+&#xd;
+powershell -Command &quot;(gc version.h) -replace &apos;GIT_COMMIT_COUNT 0&apos;, &apos;GIT_COMMIT_COUNT %GIT_COUNT%&apos; | Out-File version.h&quot;&#xd;
+&#xd;
+REM Get rid of NULL bytes polluted by power shell&#xd;
+type version.h &gt; version.tmp&#xd;
+del version.h&#xd;
+rename version.tmp version.h&#xd;
+&#xd;
+echo &quot;Modified version.h content:&quot;&#xd;
+type version.h&#xd;
+REM =============================================================================&#xd;
+</command>
+    </hudson.tasks.BatchFile>
+    <EnvInjectBuilder plugin="envinject@1.92.1">
+      <info>
+        <propertiesFilePath>inject.properties</propertiesFilePath>
+      </info>
+    </EnvInjectBuilder>
+    <hudson.tasks.BatchFile>
+      <command>REM ================================= Patch user_config.h =================================&#xd;
+&#xd;
+REM Switch to config folder&#xd;
+cd %WORKSPACE%\Appli\Source\Common\config&#xd;
+&#xd;
+REM Patch Reactor version based on DEVICE_NAME&#xd;
+if &quot;%DEVICE_NAME%&quot; == &quot;Reactor 50&quot; (&#xd;
+    powershell -Command &quot;(gc user_config.h) -replace &apos;#define USER_CONFIG_REACTOR_VERSION             REACTOR_100W&apos;, &apos;#define USER_CONFIG_REACTOR_VERSION             REACTOR_50W&apos; | Out-File user_config.h&quot;&#xd;
+&#xd;
+    REM Remove NULL bytes introduced by PowerShell&#xd;
+    type user_config.h &gt; user_config.tmp&#xd;
+    del user_config.h&#xd;
+    rename user_config.tmp user_config.h&#xd;
+)&#xd;
+&#xd;
+REM Patch running mode based on USER_RUNNING_MODE&#xd;
+echo Setting USER_CONFIG_RUNNING_MODE to %USER_RUNNING_MODE%&#xd;
+&#xd;
+powershell -Command &quot;(gc user_config.h) -replace &apos;#define USER_CONFIG_RUNNING_MODE    .*&apos;, &apos;#define USER_CONFIG_RUNNING_MODE    %USER_RUNNING_MODE%&apos; | Out-File user_config.h&quot;&#xd;
+&#xd;
+REM Remove NULL bytes introduced by PowerShell&#xd;
+type user_config.h &gt; user_config.tmp&#xd;
+del user_config.h&#xd;
+rename user_config.tmp user_config.h&#xd;
+&#xd;
+REM =============================================================================&#xd;
+</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>REM Set PATH for STM32CubeIDE.&#xd;
+SET &quot;CUBEIDE_PATH=C:\ST\STM32CubeIDE_1.17.0\STM32CubeIDE&quot;&#xd;
+SET OLD_PATH=%PATH%&#xd;
+SET PATH=%CUBEIDE_PATH%;%PATH%&#xd;
+&#xd;
+REM =============================================================================&#xd;
+&#xd;
+REM Build Reactor firmware&#xd;
+SET PROJECT=reactor-fw_Appli/Debug&#xd;
+SET ST_WORKSPACE=C:\Users\pgqa\STM32CubeIDE\workspace_1.17.0&#xd;
+SET CONSOLE=-vmargs -Dorg.eclipse.cdt.core.console=org.eclipse.cdt.core.systemConsole&#xd;
+SET HEADLESS=--launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild&#xd;
+stm32cubeidec.exe %HEADLESS% -data %ST_WORKSPACE% -importAll %WORKSPACE% -no-indexer -build %PROJECT% %CONSOLE%&#xd;
+&#xd;
+REM Check the build result&#xd;
+cd %WORKSPACE%\Appli\Debug&#xd;
+if exist reactor-fw_Appli.bin (&#xd;
+    echo Build OK&#xd;
+) else (&#xd;
+    echo Build failed! Try again!&#xd;
+    cd %WORKSPACE%\Appli&#xd;
+    git checkout HEAD -- .project&#xd;
+    git checkout HEAD -- .cproject&#xd;
+    rm -rf Debug&#xd;
+&#xd;
+    stm32cubeidec.exe %HEADLESS% -data %ST_WORKSPACE% -no-indexer -build %PROJECT% %CONSOLE%&#xd;
+)&#xd;
+&#xd;
+SET PATH=%OLD_PATH%&#xd;
+&#xd;
+REM =============================================================================&#xd;
+&#xd;
+REM Rename the bin file&#xd;
+cd %WORKSPACE%\Appli\Debug&#xd;
+if &quot;%DEVICE_NAME%&quot; == &quot;Reactor 50&quot; (&#xd;
+    rename reactor-fw_Appli.bin reactor50-fw-%BIN_VERSION%.bin&#xd;
+) else if &quot;%DEVICE_NAME%&quot; == &quot;Reactor 100&quot; (&#xd;
+    rename reactor-fw_Appli.bin reactor100-fw-%BIN_VERSION%.bin&#xd;
+) else (&#xd;
+    rename reactor-fw_Appli.bin reactor-fw-%BIN_VERSION%.bin&#xd;
+)</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>Appli/Debug/*.bin</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.plugins.descriptionsetter.DescriptionSetterPublisher plugin="description-setter@1.10">
+      <regexp></regexp>
+      <regexpForFailed></regexpForFailed>
+      <description>Branch: ${BRANCH}</description>
+      <setForMatrix>false</setForMatrix>
+    </hudson.plugins.descriptionsetter.DescriptionSetterPublisher>
+  </publishers>
+  <buildWrappers/>
+</project>

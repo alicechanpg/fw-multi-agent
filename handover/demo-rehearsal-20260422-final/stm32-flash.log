@@ -1,0 +1,51 @@
+      -------------------------------------------------------------------
+                       STM32CubeProgrammer v2.17.0                  
+      -------------------------------------------------------------------
+
+ST-LINK SN  : 002B00293234510633353533
+ST-LINK FW  : V3J16M8B5S1
+Board       : STLINK-V3SET
+Voltage     : 3.28V
+Warning:  Connection to AP 0 requested and failed, Connection established with AP 1
+
+SWD freq    : 8000 KHz
+Connect mode: Under Reset
+Reset mode  : Hardware reset
+Device ID   : 0x485
+Revision ID : Rev B
+Device name : STM32H7RSxx
+Flash size  : 64 KBytes (default)
+Device type : MCU
+Device CPU  : Cortex-M7
+BL Version  : 0xE4
+
+
+
+Memory Programming ...
+Opening and parsing file: reactor-fw_Appli.bin
+  File          : reactor-fw_Appli.bin
+  Size          : 1.23 MB 
+  Address       : 0x90000000 
+
+
+Erasing memory corresponding to segment 0:
+Erasing external memory sectors [0 314]
+Download in Progress:
+�������������������������������������������������� 0%
+�  3%�  5%�  7%�  9%� 11%� 13%� 15%� 17%� 19%� 21%� 23%� 25%� 27%� 29%� 31%� 33%� 35%� 37%� 38%� 40%� 42%� 44%� 46%� 48%� 50%� 52%� 54%� 56%� 58%� 60%� 62%� 64%� 66%� 68%� 70%� 72%� 74%� 76%� 79%� 81%� 83%� 85%� 87%� 89%� 91%� 93%� 95%� 97%� 99%� 100%
+
+File download complete
+Time elapsed during download operation: 00:00:23.046
+
+
+
+Verifying ...
+
+
+Read progress:
+�������������������������������������������������� 50%
+�  3%�  5%�  7%�  9%� 11%� 13%� 15%� 17%� 19%� 21%� 23%� 25%� 27%� 29%� 31%� 33%� 35%� 37%� 38%� 40%� 42%� 44%� 46%� 48%� 50%� 52%� 54%� 56%� 58%� 60%� 62%� 64%� 66%� 68%� 70%� 72%� 74%� 76%� 79%� 81%� 83%� 85%� 87%� 89%� 91%� 93%� 95%� 97%� 99%� 100%
+
+Download verified successfully 
+
+

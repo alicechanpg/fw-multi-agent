@@ -1,0 +1,3 @@
+[16:55:02.681] [0;32mI (99) boot: End of partition table[0m
+[16:55:04.511] 
+[16:55:04.514] Brownout detector was triggered

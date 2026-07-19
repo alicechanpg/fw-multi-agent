@@ -1,0 +1,225 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Modify the firmware binary file to embed the version info and release to OTA server</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.5.13">
+      <gitLabConnection></gitLabConnection>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PRODUCT_NAME</name>
+          <description>Product Name:&lt;br&gt;
+Reactor_50 =&gt; Reactor 50&lt;br&gt;
+Reactor_100 =&gt; Reactor 100&lt;br&gt;</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>Reactor_50</string>
+              <string>Reactor_100</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PROJ_NAME</name>
+          <description>Name of the project to be released</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>REACTOR_AMP_FW</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BUILD_NO</name>
+          <description># of the build to be released</description>
+          <defaultValue></defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>ESP32_BUILD_NO</name>
+          <description># of the ESP32 firmware build
+Set to the default value 1 if ESP32 firmware does not need to be updated</description>
+          <defaultValue>1</defaultValue>
+          <trim>false</trim>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>TO_PRODUCTION</name>
+          <description>Release to production or staging</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>QA-Win10-BM-VS2013-Test</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.42.1">
+      <project>${PROJ_NAME}</project>
+      <filter></filter>
+      <target>${WORKSPACE}</target>
+      <excludes></excludes>
+      <selector class="hudson.plugins.copyartifact.SpecificBuildSelector">
+        <buildNumber>${BUILD_NO}</buildNumber>
+      </selector>
+      <flatten>true</flatten>
+      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.42.1">
+      <project>REACTOR_ESP32_FW</project>
+      <filter></filter>
+      <target>${WORKSPACE}</target>
+      <excludes></excludes>
+      <selector class="hudson.plugins.copyartifact.SpecificBuildSelector">
+        <buildNumber>${ESP32_BUILD_NO}</buildNumber>
+      </selector>
+      <flatten>true</flatten>
+      <optional>true</optional>
+      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.BatchFile>
+      <command>setlocal enabledelayedexpansion&#xd;
+&#xd;
+set SRECORD_PATH=C:\srecord\bin&#xd;
+set SRECORD_CMD=%SRECORD_PATH%\Generate_upgrade_bin.bat&#xd;
+&#xd;
+cd %WORKSPACE%&#xd;
+&#xd;
+REM 取得 bin 檔名&#xd;
+for %%f in (*.bin) do (&#xd;
+    set filename=%%f&#xd;
+    echo &quot;the file is !filename!&quot;&#xd;
+)&#xd;
+&#xd;
+REM 利用 - 來分割，取得版本號部分&#xd;
+for /f &quot;tokens=3 delims=-&quot; %%a in (&quot;!filename!&quot;) do (&#xd;
+    set version=%%a&#xd;
+    echo &quot;the version is !version!&quot;&#xd;
+)&#xd;
+&#xd;
+REM 使用 . 來分割版本號，並存入變數&#xd;
+for /f &quot;tokens=1-4 delims=.&quot; %%a in (&quot;!version!&quot;) do (&#xd;
+    set v1=%%a&#xd;
+    set v2=%%b&#xd;
+    set v3=%%c&#xd;
+    set v4=%%d&#xd;
+)&#xd;
+&#xd;
+REM 將每個數字轉換為十六進位&#xd;
+for %%a in (v1 v2 v3 v4) do (&#xd;
+    set /a high=%%a / 16&#xd;
+    set /a low=%%a %% 16&#xd;
+&#xd;
+    REM 處理高位轉換&#xd;
+    if !high! lss 10 (&#xd;
+        set high_char=!high!&#xd;
+    ) else if !high! equ 10 (&#xd;
+        set high_char=A&#xd;
+    ) else if !high! equ 11 (&#xd;
+        set high_char=B&#xd;
+    ) else if !high! equ 12 (&#xd;
+        set high_char=C&#xd;
+    ) else if !high! equ 13 (&#xd;
+        set high_char=D&#xd;
+    ) else if !high! equ 14 (&#xd;
+        set high_char=E&#xd;
+    ) else if !high! equ 15 (&#xd;
+        set high_char=F&#xd;
+    )&#xd;
+&#xd;
+    REM 處理低位轉換&#xd;
+    if !low! lss 10 (&#xd;
+        set low_char=!low!&#xd;
+    ) else if !low! equ 10 (&#xd;
+        set low_char=A&#xd;
+    ) else if !low! equ 11 (&#xd;
+        set low_char=B&#xd;
+    ) else if !low! equ 12 (&#xd;
+        set low_char=C&#xd;
+    ) else if !low! equ 13 (&#xd;
+        set low_char=D&#xd;
+    ) else if !low! equ 14 (&#xd;
+        set low_char=E&#xd;
+    ) else if !low! equ 15 (&#xd;
+        set low_char=F&#xd;
+    ) &#xd;
+&#xd;
+    REM 組合高位與低位&#xd;
+    set hex_%%a=!high_char!!low_char!&#xd;
+)&#xd;
+&#xd;
+REM 組合成最終結果&#xd;
+set HEX_VERSION=!hex_v1!!hex_v2!!hex_v3!!hex_v4!&#xd;
+echo &quot;hex ver: !HEX_VERSION!&quot;&#xd;
+&#xd;
+REM 執行指令將指定的檔頭資料加入 bin file    &#xd;
+%SRECORD_CMD% %WORKSPACE%\!filename! %PRODUCT_NAME% !HEX_VERSION!&#xd;
+</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>REM 將檔案搬移到 jenkins 資料夾&#xd;
+set SRECORD_PATH=C:\srecord\bin&#xd;
+move &quot;%SRECORD_PATH%\*.bin&quot; &quot;%WORKSPACE%\&quot;&#xd;
+cd %WORKSPACE%&#xd;
+&#xd;
+REM rename and upload the bin file to OTA server&#xd;
+if &quot;%TO_PRODUCTION%&quot; == &quot;true&quot; (&#xd;
+    if &quot;%PRODUCT_NAME%&quot; == &quot;Reactor_50&quot; (&#xd;
+        rename &quot;*_add_checksum.bin&quot; &quot;stm32_fw_reactor50.bin&quot;&#xd;
+        aws s3 cp stm32_fw_reactor50.bin s3://positivegrid-iot/ota/stm32_fw_reactor50.bin&#xd;
+&#xd;
+        if exist &quot;esp32-fw-*.bin&quot; (&#xd;
+            rename &quot;esp32-fw-*.bin&quot; &quot;esp32_fw_reactor50.bin&quot;&#xd;
+            aws s3 cp esp32_fw_reactor50.bin s3://positivegrid-iot/ota/esp32_fw_reactor50.bin&#xd;
+        )&#xd;
+    ) else if &quot;%PRODUCT_NAME%&quot; == &quot;Reactor_100&quot; (&#xd;
+        rename &quot;*_add_checksum.bin&quot; &quot;stm32_fw_reactor100.bin&quot;&#xd;
+        aws s3 cp stm32_fw_reactor100.bin s3://positivegrid-iot/ota/stm32_fw_reactor100.bin&#xd;
+&#xd;
+        if exist &quot;esp32-fw-*.bin&quot; (&#xd;
+            rename &quot;esp32-fw-*.bin&quot; &quot;esp32_fw_reactor100.bin&quot;&#xd;
+            aws s3 cp esp32_fw_reactor100.bin s3://positivegrid-iot/ota/esp32_fw_reactor100.bin&#xd;
+        )&#xd;
+    )&#xd;
+) else (&#xd;
+    if &quot;%PRODUCT_NAME%&quot; == &quot;Reactor_50&quot; (&#xd;
+        rename &quot;*_add_checksum.bin&quot; &quot;stm32_fw_reactor50_test.bin&quot;&#xd;
+        aws s3 cp stm32_fw_reactor50_test.bin s3://positivegrid-iot/ota/stm32_fw_reactor50_test.bin&#xd;
+&#xd;
+        if exist &quot;esp32-fw-*.bin&quot; (&#xd;
+            rename &quot;esp32-fw-*.bin&quot; &quot;esp32_fw_reactor50_test.bin&quot;&#xd;
+            aws s3 cp esp32_fw_reactor50_test.bin s3://positivegrid-iot/ota/esp32_fw_reactor50_test.bin&#xd;
+        )&#xd;
+    ) else if &quot;%PRODUCT_NAME%&quot; == &quot;Reactor_100&quot; (&#xd;
+        rename &quot;*_add_checksum.bin&quot; &quot;stm32_fw_reactor100_test.bin&quot;&#xd;
+        aws s3 cp stm32_fw_reactor100_test.bin s3://positivegrid-iot/ota/stm32_fw_reactor100_test.bin&#xd;
+&#xd;
+        if exist &quot;esp32-fw-*.bin&quot; (&#xd;
+            rename &quot;esp32-fw-*.bin&quot; &quot;esp32_fw_reactor100_test.bin&quot;&#xd;
+            aws s3 cp esp32_fw_reactor100_test.bin s3://positivegrid-iot/ota/esp32_fw_reactor100_test.bin&#xd;
+        )&#xd;
+    )&#xd;
+)&#xd;
+</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.37">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+      <disableDeferredWipeout>false</disableDeferredWipeout>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.3">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

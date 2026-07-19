@@ -1,0 +1,533 @@
+[16:55:02.009] bt exit pairing mode
+[16:55:02.021] [SYNC_DIAG] Entry: moduleCnt=6, UUID=faf216f9..., _current_category=1
+[16:55:02.035] [TEMP_PRESET] Saving all 15 AMP data slots
+[16:55:02.046] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp00.bin
+[16:55:02.061] [DEBUG] DataManager: file_stat - File 300.bin (preset0_amp00.bin) exists, size: 968 bytes
+[16:55:02.072] [TEMP_PRESET] Copied amp slot 0 from 300 series (file 300)
+[16:55:02.084] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp01.bin
+[16:55:02.091] [DEBUG] DataManager: file_stat - File 301.bin (preset0_amp01.bin) exists, size: 968 bytes
+[16:55:02.099] [TEMP_PRESET] Copied amp slot 1 from 300 series (file 301)
+[16:55:02.106] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp02.bin
+[16:55:02.112] [DEBUG] DataManager: file_stat - File 302.bin (preset0_amp02.bin) exists, size: 968 bytes
+[16:55:02.120] [TEMP_PRESET] Copied amp slot 2 from 300 series (file 302)
+[16:55:02.127] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp03.bin
+[16:55:02.134] [DEBUG] DataManager: file_stat - File 303.bin (preset0_amp03.bin) exists, size: 968 bytes
+[16:55:02.146] [TEMP_PRESET] Copied amp slot 3 from 300 series (file 303)
+[16:55:02.162] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp04.bin
+[16:55:02.174] [DEBUG] DataManager: file_stat - File 304.bin (preset0_amp04.bin) exists, size: 968 bytes
+[16:55:02.183] [TEMP_PRESET] Copied amp slot 4 from 300 series (file 304)
+[16:55:02.193] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp05.bin
+[16:55:02.202] [DEBUG] DataManager: file_stat - File 305.bin (preset0_amp05.bin) exists, size: 968 bytes
+[16:55:02.213] [TEMP_PRESET] Copied amp slot 5 from 300 series (file 305)
+[16:55:02.222] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp06.bin
+[16:55:02.231] [DEBUG] DataManager: file_stat - File 306.bin (preset0_amp06.bin) exists, size: 968 bytes
+[16:55:02.239] [TEMP_PRESET] Copied amp slot 6 from 300 series (file 306)
+[16:55:02.247] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp07.bin
+[16:55:02.255] [DEBUG] DataManager: file_stat - File 307.bin (preset0_amp07.bin) exists, size: 968 bytes
+[16:55:02.265] [TEMP_PRESET] Copied amp slot 7 from 300 series (file 307)
+[16:55:02.273] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp08.bin
+[16:55:02.283] [DEBUG] DataManager: file_stat - File 308.bin (preset0_amp08.bin) exists, size: 968 bytes
+[16:55:02.292] [TEMP_PRESET] Copied amp slot 8 from 300 series (file 308)
+[16:55:02.300] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp09.bin
+[16:55:02.313] [DEBUG] DataManager: file_stat - File 309.bin (preset0_amp09.bin) exists, size: 968 bytes
+[16:55:02.327] [TEMP_PRESET] Copied amp slot 9 from 300 series (file 309)
+[16:55:02.333] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp10.bin
+[16:55:02.341] [DEBUG] DataManager: file_stat - File 310.bin (preset0_amp10.bin) exists, size: 968 bytes
+[16:55:02.349] [TEMP_PRESET] Copied amp slot 10 from 300 series (file 310)
+[16:55:02.360] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp11.bin
+[16:55:02.368] [DEBUG] DataManager: file_stat - File 311.bin (preset0_amp11.bin) exists, size: 968 bytes
+[16:55:02.376] [TEMP_PRESET] Copied amp slot 11 from 300 series (file 311)
+[16:55:02.386] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp12.bin
+[16:55:02.396] [DEBUG] DataManager: file_stat - File 312.bin (preset0_amp12.bin) exists, size: 968 bytes
+[16:55:02.405] [TEMP_PRESET] Copied amp slot 12 from 300 series (file 312)
+[16:55:02.413] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp13.bin
+[16:55:02.422] [DEBUG] DataManager: file_stat - File 313.bin (preset0_amp13.bin) exists, size: 968 bytes
+[16:55:02.431] [TEMP_PRESET] Copied amp slot 13 from 300 series (file 313)
+[16:55:02.441] [DEBUG] DataManager: file_stat - Checking status of file preset0_amp14.bin
+[16:55:02.448] [DEBUG] DataManager: file_stat - File 314.bin (preset0_amp14.bin) exists, size: 968 bytes
+[16:55:02.458] [TEMP_PRESET] Copied amp slot 14 from 300 series (file 314)
+[16:55:02.470] [TEMP_PRESET] Saved all 15 AMP data slots
+[16:55:02.481] Temp preset saved successfully (1244 bytes)
+[16:55:02.489] 
+[16:55:02.499] Reactor 50w Bootloader_version: 0.1.0.39
+[16:55:02.508] 
+[16:55:02.518] A illegal app bin length found. sd_nand_fw_info.length = 0 
+[16:55:02.528] 
+[16:55:02.537] RUNNING_MODE : LOADER_DEBUG
+[16:55:02.549] 
+[16:55:02.563] Jump to APP code (4MB NOR)
+[16:55:02.576] 
+[16:55:02.587] 
+[16:55:02.601] === Reset Source Analysis ===
+[16:55:02.613] Reset Cause: Power-On Reset (POR)
+[16:55:02.624] 
+[16:55:02.635] === IWDG Watchdog Status ===
+[16:55:02.643] IWDG Configuration: 750ms timeout (will be started after AudioService)
+[16:55:02.652] IWDG Prescaler: 32
+[16:55:02.662] IWDG Reload Value: 750
+[16:55:02.676] Feeding Strategy: AudioService (every ~102ms)
+[16:55:02.688] Note: Watchdog will start after system initialization to prevent startup timeout
+[16:55:02.704] 
+[16:55:02.713] === System Initialization Complete ===
+[16:55:02.728] Starting FreeRTOS scheduler...
+[16:55:02.742] 
+[16:55:02.757] 
+[16:55:02.770] RUNNING_MODE : APP_DEBUG
+[16:55:02.777] 
+[16:55:02.790] Reactor 100w fw_version: 0.1.0.0
+[16:55:02.800] [WATCHDOG] Normal system startup (not watchdog reset)
+[16:55:02.810] DataManager: Initialization
+[16:55:02.818] DataManager: Mutex initialization successful
+[16:55:02.826] DataManager: file_mount - Starting to mount file system
+[16:55:02.837] DataManager: file_mount - File system mounted successfully
+[16:55:02.849] 
+[16:55:02.860]  ADC1: GAIN      , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:02.869] [FWP-552] ADC[0] baseline initialized: 1.0000
+[16:55:02.877] 
+[16:55:02.886]  ADC1: BASS      , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:02.897] [FWP-552] ADC[1] baseline initialized: 1.0000
+[16:55:02.910] 
+[16:55:02.921]  ADC1: SPEAKER   , prev: 0.0000, now: 0.6860, diff: 0.6860, count: 1, max: 0.0000
+[16:55:02.940] [FWP-552] ADC[2] baseline initialized: 0.6860
+[16:55:02.952] 
+[16:55:02.969]  ADC1: MID       , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:02.979] [FWP-552] ADC[3] baseline initialized: 1.0000
+[16:55:02.992] 
+[16:55:03.007]  ADC1: AMP_MODE  , prev: 0.0000, now: 0.9083, diff: 0.9083, count: 1, max: 0.0000
+[16:55:03.019] [FWP-552] ADC[4] baseline initialized: 0.9083
+[16:55:03.029] 
+[16:55:03.040]  ADC1: MASTER    , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:03.050] [FWP-552] ADC[5] baseline initialized: 1.0000
+[16:55:03.058] 
+[16:55:03.069]  ADC1: LEVEL     , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:03.081] [FWP-552] ADC[6] baseline initialized: 1.0000
+[16:55:03.091] 
+[16:55:03.101]  ADC1: TREBLE    , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:03.110] [FWP-552] ADC[7] baseline initialized: 1.0000
+[16:55:03.119] [AmpPresetManager] Static DSP modules initialized
+[16:55:03.131] DebouncedSwitchManager: Initialized (amp_debounce=60ms, preset_debounce=60ms)
+[16:55:03.142] 
+[16:55:03.151] [AUTO] result: 0, standby: 0, shutdown: 60, jack_mode: 0, voide_guide: 0
+[16:55:03.166] 
+[16:55:03.176] 
+[16:55:03.184] 
+[16:55:03.197]  ---- Send DETECT EVENT: GUITAR, plug
+[16:55:03.211] 
+[16:55:03.221] 
+[16:55:03.230]  ---- Send DETECT EVENT: POWER_AMP, unplug
+[16:55:03.243] 
+[16:55:03.255] 
+[16:55:03.269]  ---- Send DETECT EVENT: HEADPHONE, unplug
+[16:55:03.281] 
+[16:55:03.294] 
+[16:55:03.306]  ---- Send DETECT EVENT: LINEOUT, unplug
+[16:55:03.317] 
+[16:55:03.331] 
+[16:55:03.343]  ---- Send DETECT EVENT: FX_SEND, unplug
+[16:55:03.353] 
+[16:55:03.365] 
+[16:55:03.375]  ---- Send DETECT EVENT: FX_RETURN, unplug
+[16:55:03.384] 
+[16:55:03.394] 
+[16:55:03.406]  ---- Send DETECT EVENT: TRS_PEDAL, unplug
+[16:55:03.418] 
+[16:55:03.431] 
+[16:55:03.444]  ---- Send DETECT EVENT: USB_VBUS, plug
+[16:55:03.455] 
+[16:55:03.466] [ ***** POWER ON ***** ]
+[16:55:03.480] 
+[16:55:03.491] 
+[16:55:03.505] 
+[16:55:03.517]  ---- Send DETECT EVENT: POWER_SWITCH, power on
+[16:55:03.532] power_on_sequence_1 ... 
+[16:55:03.542] power_on_sequence_2 ... 
+[16:55:03.552] power_on_sequence_3 ... 
+[16:55:03.564] [ACR] set_output_mute_hw, ch: 1, mute: 1 
+[16:55:03.573] [HP] hp_amp_version = 2
+[16:55:03.582] 
+[16:55:03.591] AKM7755 read ctrl reg 0xc0:0x2d
+[16:55:03.602] AKM7755 read ctrl reg 0xc1:0x01
+[16:55:03.612] AKM7755 read ctrl reg 0xc2:0x10
+[16:55:03.623] AKM7755 read ctrl reg 0xc3:0x00
+[16:55:03.634] AKM7755 read ctrl reg 0xc4:0x48
+[16:55:03.648] AKM7755 read ctrl reg 0xc5:0x00
+[16:55:03.657] AKM7755 read ctrl reg 0xc6:0x00
+[16:55:03.665] AKM7755 read ctrl reg 0xc7:0x00
+[16:55:03.683] AKM7755 read ctrl reg 0xc8:0x00
+[16:55:03.701] AKM7755 read ctrl reg 0xc9:0x04
+[16:55:03.713] AKM7755 read ctrl reg 0xca:0x81
+[16:55:03.724] AKM7755 read ctrl reg 0xcc:0x00
+[16:55:03.739] AKM7755 read ctrl reg 0xce:0xff
+[16:55:03.748] AKM7755 read ctrl reg 0xcf:0x2c
+[16:55:03.764] AKM7755 read ctrl reg 0xd0:0x20
+[16:55:03.773] AKM7755 read ctrl reg 0xd2:0x00
+[16:55:03.782] AKM7755 read ctrl reg 0xd3:0x0f
+[16:55:03.792] AKM7755 read ctrl reg 0xd4:0xff
+[16:55:03.805] AKM7755 read ctrl reg 0xd5:0x30
+[16:55:03.819] AKM7755 read ctrl reg 0xd6:0x30
+[16:55:03.833] AKM7755 read ctrl reg 0xd7:0x30
+[16:55:03.847] AKM7755 read ctrl reg 0xd8:0x18
+[16:55:03.860] AKM7755 read ctrl reg 0xd9:0x18
+[16:55:03.870] AKM7755 read ctrl reg 0xda:0x00
+[16:55:03.879] AKM7755 read ctrl reg 0xdb:0x00
+[16:55:03.887] AKM7755 set guitar return mix input vol 63
+[16:55:03.901] AKM7755 set usb power amp mix input vol 63
+[16:55:03.914] AKM7755 set bt input vol 63
+[16:55:03.927] AKM7755 set hp line out vol 0
+[16:55:03.940] AKM7755 set amp vol 0
+[16:55:03.955] AKM7755 guitar mute on
+[16:55:03.969] AKM7755 return mute on
+[16:55:03.982] AKM7755 usb power amp mute on
+[16:55:03.995] [Audio] read mute amp setting from dm: 0
+[16:55:04.009] AKM7755 set master eq bypass on
+[16:55:04.021] [Audio] audio chips init are done.
+[16:55:04.033] 
+[16:55:04.047] power_on_sequence_4 ... 
+[16:55:04.059] [Audio] switch music source to USB 
+[16:55:04.069] power_on_sequence_5 ... 
+[16:55:04.083] [BOR] unlock flash=0 ob=0 err=0x00000000
+[16:55:04.095] [BOR] current USERType=0x00000000 USERConfig1=0x100600DC USERConfig2=0x00000220
+[16:55:04.105] [BOR] decoded current BOR=0x0000000C target=0x0000000C
+[16:55:04.119] [BOR] skip program, current BOR already target: 0x0000000C
+[16:55:04.129] [BOR] lock ob=0 flash=0 err=0x00000000
+[16:55:04.145] AKM7755 set hp line out vol 43
+[16:55:04.158] AKM7755 set amp vol 43
+[16:55:04.171] [DEBUG] DataManager: file_stat - Checking status of file FILE_TEMP_PRESET_INFO
+[16:55:04.187] [DEBUG] DataManager: file_stat - Checking status of file FILE_FACTORY_RESET
+[16:55:04.203]   >> HEADPHONE_UNPLUG : 64641
+[16:55:04.217] 
+[16:55:04.225] [DEBUG] DataManager: file_stat - File 101.bin (FILE_TEMP_PRESET_INFO) e
+[16:55:04.503] [PVD] IRQ trigger count=1
+[16:55:06.720] 
+[16:55:06.721] Reactor 50w Bootloader_version: 0.1.0.39
+[16:55:06.734] 
+[16:55:06.746] A illegal app bin length found. sd_nand_fw_info.length = 0 
+[16:55:06.760] 
+[16:55:06.772] RUNNING_MODE : LOADER_DEBUG
+[16:55:06.783] 
+[16:55:06.793] Jump to APP code (4MB NOR)
+[16:55:06.803] 
+[16:55:06.815] 
+[16:55:06.825] === Reset Source Analysis ===
+[16:55:06.832] Reset Cause: Power-On Reset (POR)
+[16:55:06.842] 
+[16:55:06.849] === IWDG Watchdog Status ===
+[16:55:06.857] IWDG Configuration: 750ms timeout (will be started after AudioService)
+[16:55:06.864] IWDG Prescaler: 32
+[16:55:06.875] IWDG Reload Value: 750
+[16:55:06.885] Feeding Strategy: AudioService (every ~102ms)
+[16:55:06.894] Note: Watchdog will start after system initialization to prevent startup timeout
+[16:55:06.904] 
+[16:55:06.913] === System Initialization Complete ===
+[16:55:06.922] Starting FreeRTOS scheduler...
+[16:55:06.930] 
+[16:55:06.939] 
+[16:55:06.949] RUNNING_MODE : APP_DEBUG
+[16:55:06.957] 
+[16:55:06.967] Reactor 100w fw_version: 0.1.0.0
+[16:55:06.978] [WATCHDOG] Normal system startup (not watchdog reset)
+[16:55:06.990] DataManager: Initialization
+[16:55:07.003] DataManager: Mutex initialization successful
+[16:55:07.015] DataManager: file_mount - Starting to mount file system
+[16:55:07.030] DataManager: file_mount - File system mounted successfully
+[16:55:07.042] 
+[16:55:07.054]  ADC1: GAIN      , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:07.067] [FWP-552] ADC[0] baseline initialized: 1.0000
+[16:55:07.081] 
+[16:55:07.095]  ADC1: BASS      , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:07.108] [FWP-552] ADC[1] baseline initialized: 1.0000
+[16:55:07.121] 
+[16:55:07.132]  ADC1: SPEAKER   , prev: 0.0000, now: 0.6848, diff: 0.6848, count: 1, max: 0.0000
+[16:55:07.143] [FWP-552] ADC[2] baseline initialized: 0.6848
+[16:55:07.156] 
+[16:55:07.170]  ADC1: MID       , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:07.178] [FWP-552] ADC[3] baseline initialized: 1.0000
+[16:55:07.188] 
+[16:55:07.200]  ADC1: AMP_MODE  , prev: 0.0000, now: 0.9078, diff: 0.9078, count: 1, max: 0.0000
+[16:55:07.209] [FWP-552] ADC[4] baseline initialized: 0.9078
+[16:55:07.218] 
+[16:55:07.227]  ADC1: MASTER    , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:07.238] [FWP-552] ADC[5] baseline initialized: 1.0000
+[16:55:07.247] 
+[16:55:07.256]  ADC1: LEVEL     , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:07.266] [FWP-552] ADC[6] baseline initialized: 1.0000
+[16:55:07.274] 
+[16:55:07.292]  ADC1: TREBLE    , prev: 0.0000, now: 1.0000, diff: 1.0000, count: 1, max: 0.0000
+[16:55:07.304] [FWP-552] ADC[7] baseline initialized: 1.0000
+[16:55:07.428] [AmpPresetManager] Static DSP modules initialized
+[16:55:07.432] DebouncedSwitchManager: Initialized (amp_debounce=60ms, preset_debounce=60ms)
+[16:55:07.442] 
+[16:55:07.453] [AUTO] result: 0, standby: 0, shutdown: 60, jack_mode: 0, voide_guide: 0
+[16:55:07.460] 
+[16:55:07.500] 
+[16:55:07.501] 
+[16:55:07.514]  ---- Send DETECT EVENT: GUITAR, plug
+[16:55:07.528] 
+[16:55:07.541] 
+[16:55:07.555]  ---- Send DETECT EVENT: POWER_AMP, unplug
+[16:55:07.569] 
+[16:55:07.585] 
+[16:55:07.596]  ---- Send DETECT EVENT: HEADPHONE, unplug
+[16:55:07.607] 
+[16:55:07.619] 
+[16:55:07.630]  ---- Send DETECT EVENT: LINEOUT, unplug
+[16:55:07.642] 
+[16:55:07.655] 
+[16:55:07.666]  ---- Send DETECT EVENT: FX_SEND, unplug
+[16:55:07.676] 
+[16:55:07.686] 
+[16:55:07.697]  ---- Send DETECT EVENT: FX_RETURN, unplug
+[16:55:07.708] 
+[16:55:07.720] 
+[16:55:07.736]  ---- Send DETECT EVENT: TRS_PEDAL, unplug
+[16:55:07.752] 
+[16:55:07.767] 
+[16:55:07.777]  ---- Send DETECT EVENT: USB_VBUS, plug
+[16:55:07.790] 
+[16:55:07.805] [ ***** POWER ON ***** ]
+[16:55:07.823] 
+[16:55:07.838] 
+[16:55:07.853] 
+[16:55:07.868]  ---- Send DETECT EVENT: POWER_SWITCH, power on
+[16:55:07.884] power_on_sequence_1 ... 
+[16:55:07.900] power_on_sequence_2 ... 
+[16:55:07.915] power_on_sequence_3 ... 
+[16:55:07.931] [ACR] set_output_mute_hw, ch: 1, mute: 1 
+[16:55:07.946] [HP] hp_amp_version = 2
+[16:55:07.959] 
+[16:55:07.972] AKM7755 read ctrl reg 0xc0:0x2d
+[16:55:07.987] AKM7755 read ctrl reg 0xc1:0x01
+[16:55:08.001] AKM7755 read ctrl reg 0xc2:0x10
+[16:55:08.011] AKM7755 read ctrl reg 0xc3:0x00
+[16:55:08.024] AKM7755 read ctrl reg 0xc4:0x48
+[16:55:08.037] AKM7755 read ctrl reg 0xc5:0x00
+[16:55:08.044] AKM7755 read ctrl reg 0xc6:0x00
+[16:55:08.055] AKM7755 read ctrl reg 0xc7:0x00
+[16:55:08.073] AKM7755 read ctrl reg 0xc8:0x00
+[16:55:08.086] AKM7755 read ctrl reg 0xc9:0x04
+[16:55:08.095] AKM7755 read ctrl reg 0xca:0x81
+[16:55:08.107] AKM7755 read ctrl reg 0xcc:0x00
+[16:55:08.120] AKM7755 read ctrl reg 0xce:0xff
+[16:55:08.129] AKM7755 read ctrl reg 0xcf:0x2c
+[16:55:08.139] AKM7755 read ctrl reg 0xd0:0x20
+[16:55:08.148] AKM7755 read ctrl reg 0xd2:0x00
+[16:55:08.159] AKM7755 read ctrl reg 0xd3:0x0f
+[16:55:08.171] AKM7755 read ctrl reg 0xd4:0xff
+[16:55:08.186] AKM7755 read ctrl reg 0xd5:0x30
+[16:55:08.193] AKM7755 read ctrl reg 0xd6:0x30
+[16:55:08.205] AKM7755 read ctrl reg 0xd7:0x30
+[16:55:08.216] AKM7755 read ctrl reg 0xd8:0x18
+[16:55:08.226] AKM7755 read ctrl reg 0xd9:0x18
+[16:55:08.240] AKM7755 read ctrl reg 0xda:0x00
+[16:55:08.251] AKM7755 read ctrl reg 0xdb:0x00
+[16:55:08.258] AKM7755 set guitar return mix input vol 63
+[16:55:08.268] AKM7755 set usb power amp mix input vol 63
+[16:55:08.276] AKM7755 set bt input vol 63
+[16:55:08.288] AKM7755 set hp line out vol 0
+[16:55:08.299] AKM7755 set amp vol 0
+[16:55:08.311] AKM7755 guitar mute on
+[16:55:08.322] AKM7755 return mute on
+[16:55:08.335] AKM7755 usb power amp mute on
+[16:55:08.345] [Audio] read mute amp setting from dm: 0
+[16:55:08.359] AKM7755 set master eq bypass on
+[16:55:08.372] [Audio] audio chips init are done.
+[16:55:08.386] 
+[16:55:08.398] power_on_sequence_4 ... 
+[16:55:08.420] [Audio] switch music source to USB 
+[16:55:08.436] power_on_sequence_5 ... 
+[16:55:08.445] [BOR] unlock flash=0 ob=0 err=0x00000000
+[16:55:08.454] [BOR] current USERType=0x00000000 USERConfig1=0x100600DC USERConfig2=0x00000220
+[16:55:08.464] [BOR] decoded current BOR=0x0000000C target=0x0000000C
+[16:55:08.475] [BOR] skip program, current BOR already target: 0x0000000C
+[16:55:08.488] [BOR] lock ob=0 flash=0 err=0x00000000
+[16:55:08.496] AKM7755 set hp line out vol 43
+[16:55:08.506] AKM7755 set amp vol 43
+[16:55:08.518] [DEBUG] DataManager: file_stat - Checking status of file FILE_TEMP_PRESET_INFO
+[16:55:08.530] [DEBUG] DataManager: file_stat - Checking status of file FILE_FACTORY_RESET
+[16:55:08.540]   >> HEADPHONE_UNPLUG : 64641
+[16:55:08.557] 
+[16:55:08.575] [DEBUG] DataManager: file_stat - File 101.bin (FILE_TEMP_PRESET_INFO) exists, size: 108 bytes
+[16:55:08.587] AmpPresetManager: Use 100 series flag set to 1
+[16:55:08.603] [BOOT] Temp preset found, enabling 100 series mode for AI Switch
+[16:55:08.617] [DEBUG] DataManager: file_stat - Checking status of file FILE_TEMP_PRESET_INFO
+[16:55:08.627] AKM7755 set bt hp drc bypass on
+[16:55:08.648] AKM7755 set bt eq bypass off
+[16:55:08.671] AKM7755 set usb power amp eq bypass off
+[16:55:08.692] AKM7755 set hp line out vol 63
+[16:55:08.706] set lineout vol to fix volume
+[16:55:08.719] AKM7755 amp mute off [ACR] set_output_mute_sw, ch: 2, mute: 0 
+[16:55:08.728] AKM7755 set amp vol 43
+[16:55:08.740]   >> LINEOUT_UNPLUG : 64641
+[16:55:08.753] 
+[16:55:08.765] AKM7755 line out mute on
+[16:55:08.778] [ACR] set_output_mute_sle_stat - File 27.bAKM7755 amp mute off
+[16:55:08.789] [ACR] set_output_mute_sw, ch: 2, mute: 0 
+[16:55:08.800] AKM7755 set amp vol 43
+[16:55:08.811]   >> POWER_AMP_UNPLUG : 64641
+[16:55:08.824] 
+[16:55:08.835] AKM7755 usb power amp mute on
+[16:55:08.843]   >> USB_VBUS_PLUG : 64641
+[16:55:08.856] 
+[16:55:08.869] [Audio] switch music source to USB 
+[16:55:08.877] AKM7755 usb power amp mute off
+[16:55:08.887]   >> GUITAR_PLUG : 64641
+[16:55:08.899] 
+[16:55:08.908]  INPUT_MODE_INSTRUMENT_STANDARD
+[16:55:08.918] AKM7755 guitar mute off
+[16:55:08.927] bt power on mode 0
+[16:55:08.941] [AP] using static FX object for bias.noisegate
+[16:55:08.953] [LOAD_PRESET] Module: bias.noisegate, active=1, paramCnt=3
+[16:55:08.963] [AP] using static FX object for JimiWah
+[16:55:08.977] [LOAD_PRESET] Module: JimiWah, active=0, paramCnt=6
+[16:55:08.986] [AP] allocating FX object for RedComp
+[16:55:08.994] [AP] allocated FX 0x20024338 (RedComp)
+[16:55:09.012] [LOAD_PRESET] Module: RedComp, active=0, paramCnt=2
+[16:55:09.027] [AP] allocating FX object for KlonCentaur
+[16:55:09.041] [AP] allocated FX 0x20024610 (KlonCentaur)
+[16:55:09.057] [LOAD_PRESET] Module: KlonCentaur, active=0, paramCnt=3
+[16:55:09.068] [AP] using static FX object from AmpPresetManager for Amp.Preamp
+[16:55:09.080] [LOAD_PRESET] Module: Amp.Preamp, active=1, paramCnt=145
+[16:55:09.091] [AP] using static FX object from AmpPresetManager for Amp.Tonestack
+[16:55:09.104] [LOAD_PRESET] Module: Amp.Tonestack, active=1, paramCnt=4
+[16:55:09.114] [AP] using static FX object from AmpPresetManager for Amp.Poweramp
+[16:55:09.126] [LOAD_PRESET] Module: Amp.Poweramp, active=1, paramCnt=110
+[16:55:09.137] [AP] using static FX object from AmpPresetManager for Amp.Transformer
+[16:55:09.151] [LOAD_PRESET] Module: Amp.Transformer, active=1, paramCnt=11
+[16:55:09.163] [CAB_POWER] CabCompensator powerOn=1 (from preset)
+[16:55:09.178] [CAB_POWER] ReactorCabSim powerOn=1 (from preset)
+[16:55:09.198] [TIMING] rearrange_amp_signal_chain: 7 ms, 330 params, 6 modules
+[16:55:09.219] [AP] using static FX object for GuitarEQ7
+[16:55:09.235] [LOAD_PRESET] Module: GuitarEQ7, active=0, paramCnt=8
+[16:55:09.255] [AP] allocating FX object for Tremolo
+[16:55:09.275] [AP] allocated FX 0x20024b70 (Tremolo)
+[16:55:09.288] [LOAD_PRESET] Module: Tremolo, active=0, paramCnt=3
+[16:55:09.307] [AP] allocating FX object for DelayDM2
+[16:55:09.323] [AP] allocated FX 0x20024e28 (DelayDM2)
+[16:55:09.341] [LOAD_PRESET] Module: DelayDM2, active=1, paramCnt=4
+[16:55:09.355] [LOAD_PRESET] Module: MonoReverb, active=1, paramCnt=8
+[16:55:09.367] [AP] using static FX object for EffectLoop
+[16:55:09.387] [LOAD_PRESET] Module: EffectLoop, active=0, paramCnt=4
+[16:55:09.401] [TIMING] create_signal_chain_from_preset: mute_wait=53 ms, create=37 ms, 371 params, 10 modules
+[16:55:09.414] [TEMP_PRESET] Set AMP category to 255 from preset UUID
+[16:55:09.423] [BLINK_CALLER] restore_temp_preset
+[16:55:09.434] [FX_LOOP LED] FX category 0 (bias.noisegate) is_active=1
+[16:55:09.445] [AudioService] set_fx_led_display: fx_category=0, is_active=1, is_selected=0
+[16:55:09.454] [FX_LOOP LED] Skipping fx_category 8 (no LED support)
+[16:55:09.468] [FX_LOOP LED] FX category 1 (RedComp) is_active=0
+[16:55:09.479] [AudioService] set_fx_led_display: fx_category=1, is_active=0, is_selected=0
+[16:55:09.492] [FX_LOOP LED] FX category 2 (KlonCentaur) is_active=0
+[16:55:09.504] [AudioService] set_fx_led_display: fx_category=2, is_active=0, is_selected=0
+[16:55:09.518] [FX_LOOP LED] Skipping fx_category 7 (no LED support)
+[16:55:09.534] [FX_LOOP LED] FX category 4 (Tremolo) is_active=0
+[16:55:09.543] [AudioService] set_fx_led_display: fx_category=4, is_active=0, is_selected=0
+[16:55:09.555] [FX_LOOP LED] FX category 5 (DelayDM2) is_active=1
+[16:55:09.570] [AudioService] set_fx_led_display: fx_category=5, is_active=1, is_selected=0
+[16:55:09.582] [FX_LOOP LED] FX category 6 (MonoReverb) is_active=1
+[16:55:09.594] [AudioService] set_fx_led_display: fx_category=6, is_active=1, is_selected=0
+[16:55:09.606] [FX_LOOP LED] FX category 9 (EffectLoop) is_active=0
+[16:55:09.622] [FX_LOOP LED] FX_LOOP switch_index=-1, is_active=0, sending LED msg
+[16:55:09.637] [FX_LOOP LED] WARNING: toggleFXLoop not found in switch profile!
+[16:55:09.651] set_tap_tempo_led_display: bpm=120.00, onoff=1
+[16:55:09.663] TAP LED set to blink at 120.00 BPM
+[16:55:09.675] Updated TAP LED with BPM: 120.00
+[16:55:09.689] set_tap_tempo_led_display: bpm=120.00, onoff=1
+[16:55:09.701] TAP LED set to blink at 120.00 BPM
+[16:55:09.711] Temp preset restored successfully (1244 bytes)
+[16:55:09.722] [AudioService] Dynamic amp UUID mapping initialized
+[16:55:09.730] [AMP_LED] UUID=faf216f9..., mapped category=1
+[16:55:09.742] [AMP_LED] Category set to 1 (matched)
+[16:55:09.754] [AudioService] AI LED state unchanged (index: 1), skipping update
+[16:55:09.761] [AudioService] More LED state unchanged (index: 2), skipping update
+[16:55:09.770] [FX_LOOP LED] FX category 0 (bias.noisegate) is_active=1
+[16:55:09.779] [AudioService] set_fx_led_display: fx_category=0, is_active=1, is_selected=0
+[16:55:09.788] [AudioService] FX LED state unchanged for category 0, skipping update
+[16:55:09.797] [FX_LOOP LED] Skipping fx_category 8 (no LED support)
+[16:55:09.806] [FX_LOOP LED] FX category 1 (RedComp) is_active=0
+[16:55:09.819] [AudioService] set_fx_led_display: fx_category=1, is_active=0, is_selected=0
+[16:55:09.827] [AudioService] FX LED state unchanged for category 1, skipping update
+[16:55:09.835] [FX_LOOP LED] FX category 2 (KlonCentaur) is_active=0
+[16:55:09.847] [AudioService] set_fx_led_display: fx_category=2, is_active=0, is_selected=0
+[16:55:09.857] [AudioService] FX LED state unchanged for category 2, skipping update
+[16:55:09.867] [FX_LOOP LED] Skipping fx_category 7 (no LED support)
+[16:55:09.876] [FX_LOOP LED] FX category 4 (Tremolo) is_active=0
+[16:55:09.886] [AudioService] set_fx_led_display: fx_category=4, is_active=0, is_selected=0
+[16:55:09.897] [AudioService] FX LED state unchanged for category 4, skipping update
+[16:55:09.904] [FX_LOOP LED] FX category 5 (DelayDM2) is_active=1
+[16:55:09.912] [AudioService] set_fx_led_display: fx_category=5, is_active=1, is_selected=0
+[16:55:09.923] [AudioService] FX LED state unchanged for category 5, skipping update
+[16:55:09.932] [FX_LOOP LED] FX category 6 (MonoReverb) is_active=1
+[16:55:09.943] [AudioService] set_fx_led_display: fx_category=6, is_active=1, is_selected=0
+[16:55:09.953] [FX_LOOP LED] FX category 9 (EffectLoop) is_active=0
+[16:55:09.962] [FX_LOOP LED] FX_LOOP switch_index=-1, is_active=0, sending LED msg
+[16:55:09.970] [FX_LOOP LED] WARNING: toggleFXLoop not found in switch profile!
+[16:55:09.982] set_tap_tempo_led_display: bpm=120.00, onoff=1
+[16:55:09.996] TAP LED set to blink at 120.00 BPM
+[16:55:10.007] Updated TAP LED with BPM: 120.00
+[16:55:10.020] bt switch to BT mode
+[16:55:10.036] 
+[16:55:10.046] 
+[16:55:10.053]  ---- Send Slide Switch EVENT: 256 val 17
+[16:55:10.063] ----AKM7755 set_amp_power_output 25W
+[16:55:10.079] set power OUTPUT_SPEAKER_25W
+[16:55:10.088] bt ack : success
+[16:55:10.105] 
+[16:55:10.122]  ADC1: AMP_MODE  , prev: 0.9078, now: 0.9000, diff: 0.0078, count: 1, max: 0.0078
+[16:55:10.137] bt ack : success
+[16:55:10.153] [DEBUG] DataManager: file_stat - Checking status of file FILE_FACTORY_RESET
+[16:55:10.169] [FWP-557] TRS cable unplugged at 1723 ms, disabling MIN protocol
+[16:55:10.185] [ACR] set_output_mute_hw, ch: 0, mute: 0 
+[16:55:10.203] AKM7755 bt mute off
+[16:55:10.218] AKM7755 usb power amp mute off
+[16:55:10.237] AKM7755 guitar return  mute off
+[16:55:10.255] [ACR] set_all_audio_mute: UNMUTE 
+[16:55:10.267] USB commander init ...
+[16:55:10.274] Will send hw cmd 2F
+[16:55:10.289] [read_file] f_open FAIL(4) - File: 35.bin (FILE_BLE_DEVICE_NAME, idx=35)
+[16:55:10.299] get_device_name: Reactor 100 BT Control (default)
+[16:55:10.314] bt enter pairing mode
+[16:55:10.331] get_esp_ver_callback
+[16:55:10.348]   >> FX_RETURN_UNPLUG : 64641
+[16:55:10.361] 
+[16:55:10.372] AKM7755 return mute on
+[16:55:10.384]   >> FX_SEND_UNPLUG : 64641
+[16:55:10.397] 
+[16:55:10.411] [ACR] set_output_mute_hw, ch: 3, mute: 1 
+[16:55:10.424]   >> TRS_PEDAL_UNPLUG : 64641
+[16:55:10.439] 
+[16:55:10.454] UART completely cleared and all interrupts disabled
+[16:55:10.466] [00001927] clear_uart...
+[16:55:10.481] [FWP-557] TRS cable unplugged at 1932 ms, disabling MIN protocol
+[16:55:10.496] UART DMA reception successfully restarted
+[16:55:10.510] [00001935] restart_uart_dma_reception...
+[16:55:10.533] bt version : 0.03_2512091337
+[16:55:10.547] bt ack : success
+[16:55:10.562] bt rssi value 0
+[16:55:10.578] bt ack : success
+[16:55:10.591] 
+[16:55:10.604]  ADC1: AMP_MODE  , prev: 0.9078, now: 0.8998, diff: 0.0081, count: 1, max: 0.0081
+[16:55:10.616] [ACR] set_output_mute_hw, ch: 1, mute: 0 
+[16:55:10.630] [ACR] set_hpamp_mute_sw, mute: 0 
+[16:55:10.642] [ACR] set_output_mute_hw, ch: 2, mute: 0 
+[16:55:10.651] AKM7755 amp mute off
+[16:55:10.659] bt ack : fail
+[16:55:10.669] 
+[16:55:10.677]  ADC1: AMP_MODE  , prev: 0.9078, now: 0.9000, diff: 0.0078, count: 1, max: 0.0081
+[16:55:10.685] 
+[16:55:10.698]  ADC1: AMP_MODE  , prev: 0.9078, now: 0.8998, diff: 0.0081, count: 2, max: 0.0081
+[16:55:10.710] 
+[16:55:10.726] 
+[16:55:10.737]  ---- Send ADC EVENT: 4, 0.8998 ---- DebouncedSwitchManager: Amp request queued (category=1 [WARM], slot=7, from_app=0)
+[16:55:10.750] bt mac : 02 22 27 E5 AB F8 
+[16:55:10.765] DebouncedSwitchManager: Amp debounce ready, event flag set
+[16:55:10.777] [userControlTask] Executing debounced amp switch
+[16:55:10.795] DebouncedSwitchManager: Executing amp switch (category=1 [WARM], slot=7, from_app=0)
+[16:55:10.806] [Debounce] Executing amp category switch: category=1 [WARM], slot=7, from_app=0
+[16:55:10.816] [AMP_SWITCH] ENTER: cat=1, slot=7, cur_cat=1, cur_ps=1, cur_heat=2
+[16:55:10.825] [Debounce] Amp switch SUCCESS
+[16:55:10.834] [AudioService] AI LED state unchanged (index: 1), skipping update
+[16:55:10.842] [AudioService] More LED state unchanged (index: 2), skipping update
+[16:55:10.853] Temp preset save scheduled (5 min delay)
+[16:55:10.862] [PASSIVE_CMD] OBJ_SWITCH_AMP queued: category=1, slot=7
+[16:55:10.874] bt ack : success
+[16:55:10.883] wifi_status 0
+[16:55:10.891] get_bt_mac_address
