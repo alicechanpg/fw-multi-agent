@@ -1,0 +1,1 @@
+{"ts": "2026-07-21T14:45:40", "event": "UserPromptSubmit", "cwd": "D:\\mybot", "prompt": "https://jk-builds.positivegrid.com/jenkins/job/SPARK_MINI_2_FW/27/   https://jk-builds.positivegrid.com/jenkins/job/SPARK_ESP32_FW_V2/8/   幫我做 dfu 然後做 esp32 install"}
