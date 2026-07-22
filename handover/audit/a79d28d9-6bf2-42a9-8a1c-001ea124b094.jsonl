@@ -1,0 +1,2 @@
+{"ts": "2026-07-22T16:40:15", "event": "UserPromptSubmit", "cwd": "D:\\mybot", "prompt": "你幫我看一下目前 mini2 的 ota 在 esp32 怎麼實現"}
+{"ts": "2026-07-22T16:41:16", "event": "PostToolUse", "cwd": "D:\\mybot", "tool": "Bash", "input": {"command": "ls D:/mybot/git/ && cat C:/Users/alice/.claude/projects/D--mybot/memory/reference_spark_mini2_esp32_build_flash.md 2>/dev/null", "description": "List git repos and read MINI2 ESP32 memory"}, "ok": true}
