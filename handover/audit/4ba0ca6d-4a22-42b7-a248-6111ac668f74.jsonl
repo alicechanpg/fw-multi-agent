@@ -54,3 +54,4 @@
 {"ts": "2026-07-22T15:51:03", "event": "PostToolUse", "cwd": "D:\\mybot\\git\\pg-spark-esp32-wifi-bt", "tool": "Write", "input": {"file_path": "D:\\mybot\\release-binaries\\mini2-esp32-ble-adv-fix-36aa375\\README.md"}, "ok": true}
 {"ts": "2026-07-22T15:51:35", "event": "PostToolUse", "cwd": "D:\\mybot\\git\\pg-spark-esp32-wifi-bt", "tool": "Edit", "input": {"file_path": "D:\\mybot\\handover\\latest-mybot.md", "old_string": "## 上一 session（09:41）Spark MINI2 BLE 分析 — 已結案\n- Alice 已回 Acow；若重啟：驗 FW 3.2.1.90 是否含 ESP32 `cb91660`、故障機 BLE sniff `0x5D29` + UART `0xA7` 比對"}, "ok": true}
 {"ts": "2026-07-22T15:52:26", "event": "UserPromptSubmit", "cwd": "D:\\mybot\\git\\pg-spark-esp32-wifi-bt", "prompt": "在 local 燒 到 mini2 我已經接好"}
+{"ts": "2026-07-22T15:57:58", "event": "UserPromptSubmit", "cwd": "D:\\mybot\\release-binaries\\mini2-esp32-ble-adv-fix-36aa375", "prompt": "local esp32 binary 在哪 我要傳給 acow"}
