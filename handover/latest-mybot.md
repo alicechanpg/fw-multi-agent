@@ -86,7 +86,8 @@ FW 來源=SPARK_MINI_2_FW + SPARK_ESP32_FW_V2、
 - Jenkins `SPARK_ESP32_FW_V2` BRANCH choice 只有 develop → 出 Jenkins 版要先 merge；**Jenkins 當時又掛了** → Alice 決定先給本地 build
 - **本地 build 已打包**：`D:\mybot\release-binaries\mini2-esp32-ble-adv-fix-36aa375\`（4 bins + README + flash 指令，app md5 523FAFD8...）
 - 驗證工具：scratchpad `ble2.exe`（WinRT active scan，顯示 AdvertisementType + scan rsp）；csc 編譯配方在本檔同 session 的 scratchpad build script 旁
-- 待辦：Acow 用本地 build 驗 looper → 過了再 merge PR #2 + Jenkins 正式版；我的機上 ESP32 現在跑 fix build（名字顯示 "Spark MINI 2 BLE"）
+- **已收案（17:11）**：fix build 已燒實驗機並空中複驗 LEN=8 ✅；zip 已打包 `release-binaries\mini2-esp32-ble-adv-fix-36aa375.zip`（md5 D235FDFD...），Alice 自傳 Acow
+- 待辦：Acow 驗 looper → merge PR #2 → Jenkins `SPARK_ESP32_FW_V2` 出正式版（今日 Jenkins 兩度故障，出版前先確認）；詳見 sessions/mybot/2026-07-22-1711.md
 
 ---
 
