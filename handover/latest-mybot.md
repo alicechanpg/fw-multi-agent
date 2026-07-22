@@ -27,15 +27,14 @@ Alice 問：以 memory 了解，要在 GitHub 放什麼能**證明能力**。中
 
 ---
 
-## ⚠️ 上一 session（09:41）仍 pending 的事 — 未完成，勿遺失
-> 以下是 Spark MINI2 BLE 分析（FW 3.2.1.90 / iOS App 4.5.4.96，Looper 連不上）的**未結案**待辦，
-> 本 session 未處理，保留在此以免被覆蓋掉：
+## 上一 session（09:41）Spark MINI2 BLE 分析 — 已先結案（2026-07-22）
+> Alice 已回覆 Acow，此線**先結束**。以下為結案時狀態，若之後 Acow 回覆或要重啟再接：
 
-| 項目 | 狀態 | 下一步 |
+| 項目 | 狀態 | 備註 |
 |------|------|--------|
-| 給 Acow 的回覆 comment | **已送出（2026-07-22），等 Acow 回覆** | 等她回覆後再決定下一步 |
-| FW 3.2.1.90 ↔ commit mapping | 未做 | 確認測試 build 是否含 ESP32 端 `cb91660` 及之後修正 |
-| 根因假說硬體驗證 | 未做 | 故障機 BLE sniff 讀 `0x5D29` 6 bytes + STM32 UART `0xA7` MAC reply 比對 |
+| 給 Acow 的回覆 comment | **已送出，此線結案** | Alice 決定先結束 |
+| FW 3.2.1.90 ↔ commit mapping | 未做（擱置） | 若重啟：確認測試 build 是否含 ESP32 端 `cb91660` 及之後修正 |
+| 根因假說硬體驗證 | 未做（擱置） | 若重啟：故障機 BLE sniff 讀 `0x5D29` 6 bytes + STM32 UART `0xA7` MAC reply 比對 |
 
 **該 session 結論（已 code 驗證）**：非 SA-1497 length bug 重現（`ble.c:57/67` length fix 已在）；
 根因假說＝WB2853 UART 交握時序 vs ESP32「開機+2s 只問一次」的 race（`app_general_process.cpp:108-110`、
