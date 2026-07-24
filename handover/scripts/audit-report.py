@@ -100,9 +100,13 @@ def build(sessions, days):
     rate = (len(all_fail) / total * 100) if total else 0
     out += [
         "",
-        "## 失敗率",
+        "## 失敗率（audit trail — 結構性看不到失敗）",
         "",
-        f"總共 {total} 次 tool call，{len(all_fail)} 次失敗（{rate:.1f}%）。",
+        "> ⚠️ PostToolUse hook **在工具失敗時不觸發**（2026-07-24 exit-7 探針：失敗指令零紀錄）。"
+        "所以這裡的失敗數恆為 0，**不是品質證據**。真實失敗率見下方 KPI 趨勢的『真失敗%』欄"
+        "（取自 harness transcript）。",
+        "",
+        f"總共 {total} 次 tool call（僅成功），{len(all_fail)} 次失敗（{rate:.1f}%）。",
         "",
         "| tool | 呼叫 | 失敗 |",
         "|---|---|---|",
@@ -165,13 +169,18 @@ def metrics_trend(days):
     out = ["", "## 效率 / 成本 趨勢 (KPI)", "",
            "_診斷訊號，非計分板；當成 KPI 去衝會被 game（見 spec §1.2）。"
            "`插話` 是試誤代理指標，非確認糾正。_", "",
-           "| session | 日期 | output | cache_rd | prompts | 插話 | tools | 失敗% | out/p | 插話/p |",
+           "| session | 日期 | output | cache_rd | prompts | 插話 | tools | 真失敗% | out/p | 插話/p |",
            "|---|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
+        # 真失敗% from transcript (fail_rate_real); rows written before 2026-07-24 lack
+        # it -> show "—" rather than the audit-based fail_rate (which is a blind 0).
+        real = r.get("fail_rate_real", "—")
+        rej = r.get("tool_rejected")
+        real_cell = f"{real}" + (f" (拒{rej})" if rej else "") if real not in (None, "—") else "—"
         out.append(
             f"| `{str(r.get('session'))[:8]}` | {r.get('date','')} | {_fmt(r.get('out_tokens'))} | "
             f"{_fmt(r.get('cache_read'))} | {r.get('prompts')} | {r.get('interjections')} | "
-            f"{r.get('tool_calls')} | {r.get('fail_rate')} | {_fmt(r.get('out_per_prompt'))} | "
+            f"{r.get('tool_calls')} | {real_cell} | {_fmt(r.get('out_per_prompt'))} | "
             f"{r.get('interj_per_prompt')} |"
         )
     if not rows:

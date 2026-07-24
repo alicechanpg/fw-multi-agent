@@ -35,6 +35,10 @@ def build_record(data):
     rec = {
         "ts": datetime.datetime.now().isoformat(timespec="seconds"),
         "event": event,
+        # session id per record so a line is self-joining -- the trace-id idea from
+        # the 2026-07-22/23 audit suggestions. Previously it lived only in the filename,
+        # so concatenated/moved lines lost which session they came from.
+        "session": data.get("session_id"),
         "cwd": data.get("cwd"),
     }
     if event == "unparsed":

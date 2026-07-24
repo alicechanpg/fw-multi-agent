@@ -59,6 +59,65 @@ def _transcript_usage(transcript_path):
     return totals, by_model
 
 
+def _is_rejection(content):
+    """A user-declined tool call is not a failure -- keep the two apart."""
+    if isinstance(content, list):
+        content = " ".join(b.get("text", "") if isinstance(b, dict) else str(b)
+                            for b in content)
+    low = str(content).lower()
+    return ("tool use was rejected" in low
+            or "user doesn't want to proceed" in low
+            or "user rejected" in low)
+
+
+def _transcript_failures(transcript_path):
+    """Count REAL tool failures from the harness transcript.
+
+    Why not the audit trail: the PostToolUse hook (audit-log.py) never fires on a
+    failed tool call -- verified 2026-07-24 by an exit-7 probe that left no audit
+    record -- so the trail's tool_fails is structurally ~always 0 and its fail_rate
+    is a lie. The transcript is the only place failures are recorded: tool_result
+    blocks carry is_error. Returns (real_fails, rejected, results_seen) or None if
+    the transcript is unreadable. Sidechain (subagent) results are excluded, matching
+    the token scope in _transcript_usage.
+    """
+    if not transcript_path:
+        return None
+    path = pathlib.Path(transcript_path)
+    if not path.exists():
+        return None
+    real = rejected = seen = 0
+    saw_any = False
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        if '"tool_result"' not in line:
+            continue
+        try:
+            rec = json.loads(line)
+        except Exception:
+            continue
+        if rec.get("isSidechain"):
+            continue
+        msg = rec.get("message")
+        if not isinstance(msg, dict):
+            continue
+        content = msg.get("content")
+        if not isinstance(content, list):
+            continue
+        for b in content:
+            if not isinstance(b, dict) or b.get("type") != "tool_result":
+                continue
+            saw_any = True
+            seen += 1
+            if b.get("is_error"):
+                if _is_rejection(b.get("content")):
+                    rejected += 1
+                else:
+                    real += 1
+    if not saw_any:
+        return None
+    return real, rejected, seen
+
+
 def _duration_min(events):
     """Minutes between first and last audit event (local-time ISO strings)."""
     if len(events) < 2:
@@ -88,12 +147,25 @@ def compute(transcript_path, events, queued_count):
 
         totals, by_model = _transcript_usage(transcript_path)
 
+        # Real failures live in the transcript, not the audit trail (see
+        # _transcript_failures). These are additive fields -- the audit-based
+        # tool_fails/fail_rate below are kept but are structurally blind to failures.
+        fails = _transcript_failures(transcript_path)
+        real_fails = fails[0] if fails else None
+        rejected = fails[1] if fails else None
+        results_seen = fails[2] if fails else None
+
         m = {
             "prompts": prompts,
             "interjections": interjections,
             "tool_calls": tool_calls,
-            "tool_fails": tool_fails,
-            "fail_rate": _ratio(tool_fails * 100, tool_calls),
+            "tool_fails": tool_fails,  # audit-trail based -- structurally ~always 0
+            "fail_rate": _ratio(tool_fails * 100, tool_calls),  # blind; see fail_rate_real
+            # Real failures from the transcript (the honest numbers):
+            "tool_fails_real": real_fails,
+            "tool_rejected": rejected,
+            "results_seen": results_seen,
+            "fail_rate_real": _ratio(real_fails * 100, results_seen) if fails else None,
             "duration_min": _duration_min(events),
             "out_tokens": totals["out_tokens"] if totals else None,
             "cache_read": totals["cache_read"] if totals else None,
@@ -127,11 +199,20 @@ def render_md(m):
     # Skip zero-token models (e.g. "<synthetic>") -- they are noise in the table.
     model_line = ", ".join(f"{mod}: {_k(v)}" for mod, v in
                            sorted(by_model.items(), key=lambda kv: -kv[1]) if v) or "—"
+    frr = m.get("fail_rate_real")
+    fail_line = (
+        f"| **真實失敗（transcript）** | {m.get('tool_fails_real')} / "
+        f"{m.get('results_seen')} 工具結果（{frr}%）；使用者拒絕 {m.get('tool_rejected')} |"
+        if m.get("tool_fails_real") is not None
+        else "| 真實失敗（transcript） | _transcript 無法讀，本場無資料_ |"
+    )
     lines = [
         "## 效率 / Token",
         "",
         "> `interjections` 是試誤的**代理指標，≠ 已確認糾正**（P3 opus 稽核再精算）。"
-        "subagent token 未納入（在各自 task transcript）。cache_read 為每輪重讀累加。",
+        "subagent token 未納入（在各自 task transcript）。cache_read 為每輪重讀累加。"
+        "**失敗率取自 transcript**：PostToolUse hook 在工具失敗時不觸發，audit trail 看不到失敗"
+        "（2026-07-24 exit-7 探針驗證），故 audit 版 tool_fails 恆 0、不可信。",
         "",
         "| 指標 | 值 |",
         "|---|---|",
@@ -140,8 +221,8 @@ def render_md(m):
         f"| cache_create | {_k(m.get('cache_create'))} |",
         f"| tokens by model | {model_line} |",
         f"| prompts / 中途插話 | {m.get('prompts')} / {m.get('interjections')} |",
-        f"| tool calls / 失敗 | {m.get('tool_calls')} / {m.get('tool_fails')}"
-        f"（{m.get('fail_rate')}%） |",
+        f"| tool calls（audit，僅成功） | {m.get('tool_calls')} |",
+        fail_line,
         f"| turns / 時長(min) | {_k(m.get('turns'))} / {m.get('duration_min')} |",
         f"| output/prompt · tools/prompt · 插話/prompt | "
         f"{_k(m.get('out_per_prompt'))} · {m.get('tools_per_prompt')} · {m.get('interj_per_prompt')} |",
